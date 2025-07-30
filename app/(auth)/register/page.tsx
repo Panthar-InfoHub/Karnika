@@ -28,8 +28,6 @@ export default function SignUp() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-
-
   return (
     <Card className="z-50 rounded-md rounded-t-none max-w-md w-full">
       <CardHeader>

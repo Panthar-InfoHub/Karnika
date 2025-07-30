@@ -11,21 +11,35 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
-import { Loader2, Key } from "lucide-react";
-import { signIn } from "@/lib/auth-client";
+import { Loader2 } from "lucide-react";
+import { signIn, useSession } from "@/lib/auth-client";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-const router = useRouter();
+  const router = useRouter();
+
+  const { data: session, isPending } = useSession();
+
+  if(isPending){
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="animate-spin" size={24} />
+      </div>
+    );
+  }
+
+  if (session) {
+    router.replace("/admin");
+    return null;
+  }
 
   return (
     <Card className="max-w-md w-full">
@@ -94,8 +108,8 @@ const router = useRouter();
                     );
                   },
                   onSuccess: (ctx) => {
+                    router.replace("/admin");
                     toast.success("Logged in successfully!");
-                    router.replace("/admin")
                   },
                 }
               );
