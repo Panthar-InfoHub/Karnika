@@ -1,0 +1,68 @@
+✅ Pages to Build
+Public Pages
+
+    /login – Login
+    /register – Register
+
+    / – landing page
+    /about – About us
+    /contact – Contact form
+
+    /products – Product listing
+    /products/[slug] – Product detail
+    /cart – Cart
+    /checkout – Checkout by razorpay
+
+    /order/[id] – Order details/tracking
+    /account – Profile, address, orders
+
+Admin Pages
+
+    /admin – Dashboard overview
+    /admin/products – Manage Products (list, edit, delete)
+    /admin/products/new – Add Product
+    /admin/orders – Manage Orders
+    /admin/orders/[id] – Order Details
+    /admin/customers – View Customers
+    /admin/settings – Edit other details like tax , shipping , payments etc
+
+🔁 Functional Flows
+1. User Auth Flow (BetterAuth)
+
+    Register/Login
+
+    Session check for access
+
+    Role-based auth (Admin/User)
+
+2. Product Flow
+
+    Browse → View details → Add to cart
+
+3. Cart & Checkout
+
+    Add/remove items
+
+    Address management
+
+    Apply delivery charge
+
+    Place order (after payment)
+
+4. Admin Product Flow
+
+    Add/edit/delete product
+
+    Track stock (optional)
+
+5. Admin Order Flow
+
+    View all orders
+
+    Update status (pending, out for delivery, delivered, cancelled)
+
+6. User Order Flow
+
+    View past orders
+
+    Track status

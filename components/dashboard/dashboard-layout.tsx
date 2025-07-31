@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -16,6 +17,7 @@ import {
 import Navbar from "./Navbar";
 import SidebarLinks from "./sidebar-links";
 import { Store } from "lucide-react";
+import SignOut from "../sign-out";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -44,6 +46,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
+        <SidebarFooter className="pb-4">
+          <SignOut/>
+        </SidebarFooter>
       </Sidebar>
       <SidebarInset>
         <Navbar />

@@ -12,8 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import Image from "next/image";
-import { Loader2, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { signUp } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -27,6 +26,30 @@ export default function SignUp() {
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  const handleSignUp = async () => {
+    await signUp.email({
+      email,
+      password,
+      name: `${firstName} ${lastName}`,
+      callbackURL: "/",
+      fetchOptions: {
+        onResponse: () => {
+          setLoading(false);
+        },
+        onRequest: () => {
+          setLoading(true);
+        },
+        onError: (ctx) => {
+          console.log(ctx.error);
+          toast.error(ctx.error.message);
+        },
+        onSuccess: async () => {
+          router.replace("/");
+        },
+      },
+    });
+  };
 
   return (
     <Card className="z-50 rounded-md rounded-t-none max-w-md w-full">
@@ -103,29 +126,7 @@ export default function SignUp() {
             type="submit"
             className="w-full"
             disabled={loading}
-            onClick={async () => {
-              await signUp.email({
-                email,
-                password,
-                name: `${firstName} ${lastName}`,
-                callbackURL: "/dashboard",
-                fetchOptions: {
-                  onResponse: () => {
-                    setLoading(false);
-                  },
-                  onRequest: () => {
-                    setLoading(true);
-                  },
-                  onError: (ctx) => {
-                    console.log(ctx.error);
-                    toast.error(ctx.error.message);
-                  },
-                  onSuccess: async () => {
-                    router.replace("/admin");
-                  },
-                },
-              });
-            }}
+            onClick={handleSignUp}
           >
             {loading ? (
               <Loader2 size={16} className="animate-spin" />

@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { signIn, useSession } from "@/lib/auth-client";
+import { signIn } from "@/lib/auth-client";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -26,20 +26,34 @@ export default function SignIn() {
 
   const router = useRouter();
 
-  const { data: session, isPending } = useSession();
-
-  if(isPending){
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="animate-spin" size={24} />
-      </div>
-    );
-  }
-
-  if (session) {
-    router.replace("/admin");
-    return null;
-  }
+  const handleLogin = async () => {
+    setLoading(true);
+    try {
+      await signIn.email({
+        email,
+        password,
+        callbackURL: "/",
+        fetchOptions: {
+          onResponse: () => {
+            setLoading(false);
+          },
+          onRequest: () => {
+            setLoading(true);
+          },
+          onError: (ctx) => {
+            // console.error(ctx.error);
+            toast.error("Login failed. Please try again.");
+          },
+          onSuccess: async () => {
+            router.replace("/");
+          },
+        },
+      });
+    } catch (error) {
+      setLoading(false);
+      toast.error("Login failed. Please try again.");
+    }
+  };
 
   return (
     <Card className="max-w-md w-full">
@@ -87,33 +101,7 @@ export default function SignIn() {
             type="submit"
             className="w-full"
             disabled={loading}
-            onClick={async () => {
-              await signIn.email(
-                {
-                  email,
-                  password,
-                },
-                {
-                  onRequest: (ctx) => {
-                    setLoading(true);
-                  },
-                  onResponse: (ctx) => {
-                    setLoading(false);
-                  },
-                  onError: (ctx) => {
-                    toast.error(
-                      `Error logging in: ${
-                        ctx.error?.message || "Unknown error"
-                      }`
-                    );
-                  },
-                  onSuccess: (ctx) => {
-                    router.replace("/admin");
-                    toast.success("Logged in successfully!");
-                  },
-                }
-              );
-            }}
+            onClick={handleLogin}
           >
             {loading ? (
               <Loader2 size={16} className="animate-spin" />
@@ -132,22 +120,6 @@ export default function SignIn() {
               variant="outline"
               className={cn("w-full gap-2")}
               disabled={loading}
-              onClick={async () => {
-                await signIn.social(
-                  {
-                    provider: "google",
-                    callbackURL: "/admin",
-                  },
-                  {
-                    onRequest: (ctx) => {
-                      setLoading(true);
-                    },
-                    onResponse: (ctx) => {
-                      setLoading(false);
-                    },
-                  }
-                );
-              }}
             >
               Sign in with Google
             </Button>
