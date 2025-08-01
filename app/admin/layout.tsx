@@ -13,5 +13,7 @@ export default async function AdminLayout({
     redirect("/", RedirectType.replace);
   }
 
-  return <DashboardLayout>{children}</DashboardLayout>;
+  return (
+    <DashboardLayout>{children}</DashboardLayout>
+  );
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
 const authRoutes = ["/login", "/register"];
+const ProtectedRoutes = ["/account", "/orders"];
 
 export async function middleware(request: NextRequest) {
   const { nextUrl } = request;
@@ -11,9 +12,10 @@ export async function middleware(request: NextRequest) {
 
   const isLoggedIn = !!sessionCookie;
   const isOnAuthRoute = authRoutes.includes(nextUrl.pathname);
+  const isOnProtectedRoute = ProtectedRoutes.includes(nextUrl.pathname);
   const isOnAdminRoute = nextUrl.pathname.startsWith("/admin");
 
-  if( isOnAdminRoute && !isLoggedIn) {
+  if( (isOnAdminRoute || isOnProtectedRoute) && !isLoggedIn) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
