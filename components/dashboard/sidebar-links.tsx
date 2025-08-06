@@ -1,7 +1,15 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Package, Settings, ShoppingCart, Users } from "lucide-react";
+import {
+  Home,
+  Package,
+  Settings,
+  ShoppingCart,
+  Tag,
+  Users,
+  Image,
+} from "lucide-react";
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -21,6 +29,11 @@ const navigation = [
     icon: Package,
   },
   {
+    title: "Categories",
+    url: "/admin/categories",
+    icon: Tag,
+  },
+  {
     title: "Orders",
     url: "/admin/orders",
     icon: ShoppingCart,
@@ -29,6 +42,11 @@ const navigation = [
     title: "Customers",
     url: "/admin/customers",
     icon: Users,
+  },
+  {
+    title: "Media",
+    url: "/admin/media",
+    icon: Image,
   },
   {
     title: "Settings",

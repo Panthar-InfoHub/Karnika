@@ -25,11 +25,12 @@ model User {
   email         String
   emailVerified Boolean
   image         String?
-  role         USER_ROLE @default(USER)
+  role          USER_ROLE @default(USER)
   createdAt     DateTime
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
+  orders        Order[]
 
   @@unique([email])
   @@map("user")
@@ -78,4 +79,73 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model Product {
+  id          String      @id @default(uuid())
+  name        String
+  description String?
+  images      String[]    @default([])
+  price       Int
+  category    Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  categoryId  String?
+  stock       Int         @default(0)
+  variants    String[]    @default([])
+  slug        String      @unique
+  updatedAt   DateTime    @default(now())
+  createdAt   DateTime    @default(now())
+  orders      OrderItem[]
+
+  @@map("product")
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  image       String?
+  slug        String    @unique
+  products    Product[]
+
+  @@map("category")
+}
+
+enum ORDER_STATUS {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Order {
+  id     String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  items       OrderItem[]
+  status      ORDER_STATUS @default(PENDING)
+  totalAmount Int
+  paymentId   String? // e.g., Razorpay payment ID
+  address     String
+  phone       String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now())
+
+  @@map("order")
+}
+
+model OrderItem {
+  id      String @id @default(uuid())
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  orderId String
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+
+  quantity    Int
+  price       Int // snapshot of price at time of purchase
+  productName String // snapshot of name
+
+  @@map("order_item")
 }

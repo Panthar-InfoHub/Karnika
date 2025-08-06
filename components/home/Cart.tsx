@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { X, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,10 +9,18 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useCart } from "@/context/CartContext";
+import { placeOrder } from "@/actions/orderActions";
 
 const Cart = () => {
-  const { items, isOpen, closeCart, removeItem, updateQuantity, total,itemCount } =
-    useCart();
+  const {
+    items,
+    isOpen,
+    closeCart,
+    removeItem,
+    updateQuantity,
+    total,
+    itemCount,
+  } = useCart();
 
   return (
     <Sheet open={isOpen} onOpenChange={closeCart}>
@@ -126,6 +134,17 @@ const Cart = () => {
                 <Button
                   className="w-full font-semibold py-3"
                   size="lg"
+                  onClick={() =>
+                    placeOrder(
+                      items.map((item) => ({
+                        productName: item.name,
+                        productImage: item.image,
+                        productId: item.id,
+                        quantity: item.quantity,
+                        price: item.price,
+                      }))
+                    )
+                  }
                 >
                   Checkout
                 </Button>

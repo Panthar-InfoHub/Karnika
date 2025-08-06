@@ -1,9 +1,15 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import * as React from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -11,10 +17,23 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,80 +41,69 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Eye, MoreHorizontal, Search, Truck } from "lucide-react"
+} from "@/components/ui/dropdown-menu";
+import { Eye, MoreHorizontal, Plus, Search, Truck } from "lucide-react";
+import { placeOrder } from "@/actions/orderActions";
+import { OrderType } from "@/types/DbType";
 
-const orders = [
+const dummyCreateOrder = [
   {
-    id: "ORD-001",
-    customer: "John Doe",
-    email: "john@example.com",
-    status: "pending",
-    total: 299.99,
-    date: "2024-01-15",
-    items: 3,
+    productName: "Product A",
+    productId: "80f58d4c-f4be-4f98-a874-5d657646253e",
+    quantity: 2,
+    price: 99.99,
   },
   {
-    id: "ORD-002",
-    customer: "Jane Smith",
-    email: "jane@example.com",
-    status: "shipped",
-    total: 149.99,
-    date: "2024-01-14",
-    items: 2,
+    productName: "Product A",
+    productId: "80f58d4c-f4be-4f98-a874-5d657646253e",
+    quantity: 1,
+    price: 49.99,
   },
   {
-    id: "ORD-003",
-    customer: "Bob Johnson",
-    email: "bob@example.com",
-    status: "delivered",
-    total: 79.99,
-    date: "2024-01-13",
-    items: 1,
+    productName: "Product A",
+    productId: "80f58d4c-f4be-4f98-a874-5d657646253e",
+    quantity: 3,
+    price: 29.99,
   },
-  {
-    id: "ORD-004",
-    customer: "Alice Brown",
-    email: "alice@example.com",
-    status: "cancelled",
-    total: 199.99,
-    date: "2024-01-12",
-    items: 2,
-  },
-]
+];
 
 const getStatusColor = (status: string) => {
   switch (status) {
     case "pending":
-      return "secondary"
+      return "secondary";
     case "shipped":
-      return "default"
+      return "default";
     case "delivered":
-      return "default"
+      return "default";
     case "cancelled":
-      return "destructive"
+      return "destructive";
     default:
-      return "secondary"
+      return "secondary";
   }
-}
+};
 
-export function OrdersPage() {
-  const [searchTerm, setSearchTerm] = React.useState("")
-  const [statusFilter, setStatusFilter] = React.useState("all")
+export function OrdersPage({ orders }: { orders: OrderType[] }) {
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState("all");
 
   const filteredOrders = orders.filter((order) => {
-    const matchesSearch =
-      order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === "all" || order.status === statusFilter
-    return matchesSearch && matchesStatus
-  })
+    const matchesSearch = order.id
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+
+    // || order.customer.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" || order.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Orders</h2>
-        <Button>Export Orders</Button>
+        <Button onClick={() => placeOrder(dummyCreateOrder)}>
+          Create Orders
+        </Button>
       </div>
 
       <div className="flex items-center space-x-2">
@@ -125,7 +133,9 @@ export function OrdersPage() {
       <Card>
         <CardHeader>
           <CardTitle>Order Management</CardTitle>
-          <CardDescription>View and manage all customer orders.</CardDescription>
+          <CardDescription>
+            View and manage all customer orders.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -133,10 +143,10 @@ export function OrdersPage() {
               <TableRow>
                 <TableHead>Order ID</TableHead>
                 <TableHead>Customer</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead>Total</TableHead>
+                <TableHead>Phone No.</TableHead>
                 <TableHead>Date</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Total</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -146,16 +156,20 @@ export function OrdersPage() {
                   <TableCell className="font-medium">{order.id}</TableCell>
                   <TableCell>
                     <div>
-                      <div className="font-medium">{order.customer}</div>
-                      <div className="text-sm text-muted-foreground">{order.email}</div>
+                      <div className="font-medium">{order.user.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {order.user.email}
+                      </div>
                     </div>
                   </TableCell>
+                  <TableCell>{order.phone}</TableCell>
+                  <TableCell>{order.createdAt.toLocaleDateString()}</TableCell>
                   <TableCell>
-                    <Badge variant={getStatusColor(order.status)}>{order.status}</Badge>
+                    <Badge variant={getStatusColor(order.status)}>
+                      {order.status}
+                    </Badge>
                   </TableCell>
-                  <TableCell>{order.items}</TableCell>
-                  <TableCell>${order.total}</TableCell>
-                  <TableCell>{order.date}</TableCell>
+                  <TableCell>${order.totalAmount}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -167,49 +181,69 @@ export function OrdersPage() {
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <Dialog>
                           <DialogTrigger asChild>
-                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                            <DropdownMenuItem
+                              onSelect={(e) => e.preventDefault()}
+                            >
                               <Eye className="mr-2 h-4 w-4" />
                               View Details
                             </DropdownMenuItem>
                           </DialogTrigger>
                           <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
-                              <DialogTitle>Order Details - {order.id}</DialogTitle>
-                              <DialogDescription>Complete order information and status.</DialogDescription>
+                              <DialogTitle>
+                                Order Details - {order.id}
+                              </DialogTitle>
+                              <DialogDescription>
+                                Complete order information and status.
+                              </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
                                   <h4 className="font-semibold">Customer</h4>
-                                  <p>{order.customer}</p>
-                                  <p className="text-sm text-muted-foreground">{order.email}</p>
+                                  <p>{order.totalAmount}</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    {order.phone}
+                                  </p>
                                 </div>
                                 <div>
                                   <h4 className="font-semibold">Status</h4>
-                                  <Badge variant={getStatusColor(order.status)}>{order.status}</Badge>
+                                  <Badge variant={getStatusColor(order.status)}>
+                                    {order.status}
+                                  </Badge>
                                 </div>
                               </div>
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
                                   <h4 className="font-semibold">Total</h4>
-                                  <p>${order.total}</p>
+                                  <p>${order.totalAmount}</p>
                                 </div>
                                 <div>
                                   <h4 className="font-semibold">Date</h4>
-                                  <p>{order.date}</p>
+                                  <p>{order.createdAt.toLocaleString()}</p>
                                 </div>
                               </div>
                               <div>
-                                <h4 className="font-semibold mb-2">Update Status</h4>
+                                <h4 className="font-semibold mb-2">
+                                  Update Status
+                                </h4>
                                 <Select defaultValue={order.status}>
                                   <SelectTrigger>
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="pending">Pending</SelectItem>
-                                    <SelectItem value="shipped">Shipped</SelectItem>
-                                    <SelectItem value="delivered">Delivered</SelectItem>
-                                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                                    <SelectItem value="pending">
+                                      Pending
+                                    </SelectItem>
+                                    <SelectItem value="shipped">
+                                      Shipped
+                                    </SelectItem>
+                                    <SelectItem value="delivered">
+                                      Delivered
+                                    </SelectItem>
+                                    <SelectItem value="cancelled">
+                                      Cancelled
+                                    </SelectItem>
                                   </SelectContent>
                                 </Select>
                               </div>
@@ -232,5 +266,5 @@ export function OrdersPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
