@@ -21,7 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Upload, Image as ImageIcon, X } from "lucide-react";
+import { Upload, Image as ImageIcon, X, Plus } from "lucide-react";
 import { Category } from "@/prisma/generated/prisma";
 import { ProductWithCategory } from "@/types/DbType";
 import { SelectCategory } from "./select-category";
@@ -31,6 +31,8 @@ import {
 } from "@/actions/productAction";
 import { useRouter } from "next/navigation";
 import { MediaSelector } from "./media-selector";
+import ChooseMedia from "./ChooseMedia";
+import { TagsInput } from "../ui/tags-input";
 
 interface ProductFormProps {
   product?: ProductWithCategory;
@@ -52,18 +54,22 @@ export function ProductForm({
   const [selectedCategory, setSelectedCategory] = React.useState<string | null>(
     product?.categoryId || null
   );
+  const [tags, setTags] = React.useState<string[]>(product?.variants || []);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [isMediaDialogOpen, setIsMediaDialogOpen] = React.useState(false);
+  // const [isMediaDialogOpen, setIsMediaDialogOpen] = React.useState(false);
 
   const handleSubmit = async (formData: FormData) => {
     setIsSubmitting(true);
     try {
-      // Add selected images and category to form data
       if (selectedCategory) {
         formData.append("categoryId", selectedCategory);
       }
       selectedImages.forEach((image, index) => {
         formData.append(`images[${index}]`, image);
+      });
+
+      tags.forEach((tag, index) => {
+        formData.append(`variants[${index}]`, tag);
       });
 
       if (mode === "create") {
@@ -77,14 +83,16 @@ export function ProductForm({
     } catch (error) {
       console.error("Failed to save product:", error);
     } finally {
+      setSelectedImages([]);
+      setSelectedCategory(null);
       setIsSubmitting(false);
     }
   };
 
-  const handleImageSelect = (imageUrls: string[]) => {
-    setSelectedImages((prev) => [...prev, ...imageUrls]);
-    setIsMediaDialogOpen(false);
-  };
+  // const handleImageSelect = (imageUrls: string[]) => {
+  //   setSelectedImages((prev) => [...prev, ...imageUrls]);
+  //   setIsMediaDialogOpen(false);
+  // };
 
   const handleImageRemove = (index: number) => {
     setSelectedImages((prev) => prev.filter((_, i) => i !== index));
@@ -131,6 +139,7 @@ export function ProductForm({
                 value={selectedCategory}
                 onValueChange={setSelectedCategory}
                 placeholder="Select category"
+                showAddButton
               />
             </div>
           </CardContent>
@@ -174,15 +183,13 @@ export function ProductForm({
 
             <div className="space-y-2">
               <Label htmlFor="variants">Variants (Optional)</Label>
-              <Input
-                id="variants"
-                name="variants"
-                defaultValue={product?.variants?.join(", ")}
-                placeholder="Size S, Size M, Size L"
+              <TagsInput
+                value={tags}
+                onValueChange={setTags}
+                placeholder="Enter product variants"
+                maxItems={5}
+                minItems={0}
               />
-              <p className="text-xs text-muted-foreground">
-                Separate variants with commas
-              </p>
             </div>
           </CardContent>
         </Card>
@@ -225,37 +232,10 @@ export function ProductForm({
           )}
 
           {/* Image Upload Options */}
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" className="flex-1">
-              <Upload className="mr-2 h-4 w-4" />
-              Upload New
-            </Button>
-
-            <Dialog
-              open={isMediaDialogOpen}
-              onOpenChange={setIsMediaDialogOpen}
-            >
-              <DialogTrigger asChild>
-                <Button type="button" variant="outline" className="flex-1">
-                  <ImageIcon className="mr-2 h-4 w-4" />
-                  Select Existing
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-4xl">
-                <DialogHeader>
-                  <DialogTitle>Select Media</DialogTitle>
-                  <DialogDescription>
-                    Choose from existing media files
-                  </DialogDescription>
-                </DialogHeader>
-                <MediaSelector
-                  media={media}
-                  onSelect={handleImageSelect}
-                  multiple
-                />
-              </DialogContent>
-            </Dialog>
-          </div>
+          <ChooseMedia
+            selectedUrls={selectedImages}
+            setSelectedUrls={setSelectedImages}
+          />
         </CardContent>
       </Card>
 

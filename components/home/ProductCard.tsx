@@ -33,7 +33,7 @@ const ProductCard = ({
   const { addItem } = useCart();
 
   const handleAddToCart = () => {
-    if (!selectedVariant || !name || !price || !images || !id) {
+    if (!name || !price || !images || !id) {
       toast.error("Invalid selection");
       return;
     }

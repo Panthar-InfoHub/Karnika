@@ -80,6 +80,7 @@ function MediaError({ error }: { error: Error }) {
 async function MediaContent() {
   try {
     const { media } = await getMediaData();
+    // return <FileUploaderTest/>
     return <MediaGrid media={media} />;
   } catch (error) {
     return <MediaError error={error as Error} />;

@@ -2,9 +2,8 @@
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +19,9 @@ import {
   Copy,
 } from "lucide-react";
 import { ConfirmDialog } from "../ui/confirm-dialog";
+import { toast } from "sonner";
+import ImageUploader from "./FileUploader";
+
 
 interface MediaItem {
   id: string;
@@ -45,18 +47,10 @@ export function MediaGrid({ media }: MediaGridProps) {
     );
   }, [media, searchTerm]);
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-  };
-
   const handleCopyUrl = async (url: string) => {
     try {
       await navigator.clipboard.writeText(url);
-      // Could add toast notification here
+      toast.success("URL copied to clipboard");
     } catch (error) {
       console.error("Failed to copy URL:", error);
     }
@@ -65,9 +59,8 @@ export function MediaGrid({ media }: MediaGridProps) {
   const handleDelete = async (item: MediaItem) => {
     setIsDeleting(item.id);
     try {
-      // Implement delete logic here
       console.log("Deleting media:", item.id);
-      // await deleteMediaAction(item.id);
+      toast.success(`Deleted ${item.name}`);
     } catch (error) {
       console.error("Failed to delete media:", error);
     } finally {
@@ -78,6 +71,8 @@ export function MediaGrid({ media }: MediaGridProps) {
 
   return (
     <div className="space-y-6">
+
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -86,39 +81,27 @@ export function MediaGrid({ media }: MediaGridProps) {
             Manage your uploaded files and media
           </p>
         </div>
-        <Button>
+        {/* <Button>
           <Upload className="mr-2 h-4 w-4" />
           Upload Media
-        </Button>
+        </Button> */}
       </div>
-
-      {/* Search */}
-      <div className="flex items-center space-x-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search media..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-8"
-          />
-        </div>
-        <Badge variant="secondary">
-          {filteredMedia.length} {filteredMedia.length === 1 ? "file" : "files"}
-        </Badge>
+      <div className="border-b  pb-4">
+        <ImageUploader />
       </div>
+      <p className="font-semibold text-xl">All Media</p>
 
       {/* Media Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {filteredMedia.map((item) => (
-          <Card key={item.id} className="group overflow-hidden">
+        {media.map((item) => (
+          <Card key={item.id} className="group overflow-hidden p-0">
             <div className="aspect-square relative">
               <img
                 src={item.url}
                 alt={item.name}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex  justify-end p-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="secondary" size="icon">
@@ -130,12 +113,12 @@ export function MediaGrid({ media }: MediaGridProps) {
                       <Copy className="mr-2 h-4 w-4" />
                       Copy URL
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
+                    {/* <DropdownMenuItem asChild>
                       <a href={item.url} download={item.name}>
                         <Download className="mr-2 h-4 w-4" />
                         Download
                       </a>
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                     <DropdownMenuItem
                       className="text-destructive"
                       onClick={() => setDeleteItem(item)}
@@ -148,35 +131,9 @@ export function MediaGrid({ media }: MediaGridProps) {
                 </DropdownMenu>
               </div>
             </div>
-            <CardContent className="p-3">
-              <p className="text-xs font-medium truncate">{item.name}</p>
-              <p className="text-xs text-muted-foreground">
-                {formatFileSize(item.size)}
-              </p>
-            </CardContent>
           </Card>
         ))}
       </div>
-
-      {filteredMedia.length === 0 && (
-        <div className="text-center py-12">
-          <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
-          <h3 className="mt-2 text-sm font-medium">No media files</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {searchTerm
-              ? "No files match your search."
-              : "Get started by uploading your first file."}
-          </p>
-          {!searchTerm && (
-            <Button className="mt-4">
-              <Upload className="mr-2 h-4 w-4" />
-              Upload Media
-            </Button>
-          )}
-        </div>
-      )}
-
-      {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         open={!!deleteItem}
         onOpenChange={() => setDeleteItem(null)}

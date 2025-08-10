@@ -140,8 +140,8 @@ model OrderItem {
   order   Order  @relation(fields: [orderId], references: [id], onDelete: SetNull)
   orderId String
 
-  product   Product @relation(fields: [productId], references: [id])
-  productId String
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productId String?
 
   quantity    Int
   price       Int // snapshot of price at time of purchase

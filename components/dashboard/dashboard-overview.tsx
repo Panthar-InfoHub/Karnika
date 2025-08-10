@@ -1,220 +1,246 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  LabelList,
+  PolarAngleAxis,
+  RadialBar,
+  RadialBarChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  PieChart,
+  Pie,
+  Label,
+} from "recharts"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { Download } from 'lucide-react'
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { DollarSign, Package, ShoppingCart, TrendingUp, AlertTriangle } from "lucide-react"
 
-const stats = [
-  {
-    title: "Total Revenue",
-    value: "$45,231.89",
-    change: "+20.1% from last month",
-    icon: DollarSign,
-  },
-  {
-    title: "Orders",
-    value: "2,350",
-    change: "+180.1% from last month",
-    icon: ShoppingCart,
-  },
-  {
-    title: "Products",
-    value: "12,234",
-    change: "+19% from last month",
-    icon: Package,
-  },
-  {
-    title: "Active Customers",
-    value: "573",
-    change: "+201 since last hour",
-    icon: TrendingUp,
-  },
+const salesData = [
+  { month: "Jan", sales: 42000, orders: 240 },
+  { month: "Feb", sales: 38000, orders: 210 },
+  { month: "Mar", sales: 52000, orders: 305 },
+  { month: "Apr", sales: 48000, orders: 280 },
+  { month: "May", sales: 64000, orders: 392 },
+  { month: "Jun", sales: 59000, orders: 350 },
+  { month: "Jul", sales: 72000, orders: 430 },
 ]
 
-const topProducts = [
-  {
-    name: "Wireless Headphones",
-    sales: 1234,
-    revenue: "$24,680",
-    image: "/test.webp",
-  },
-  {
-    name: "Smart Watch",
-    sales: 987,
-    revenue: "$19,740",
-    image: "/test.webp",
-  },
-  {
-    name: "Laptop Stand",
-    sales: 756,
-    revenue: "$15,120",
-    image: "/test.webp",
-  },
-  {
-    name: "USB-C Cable",
-    sales: 654,
-    revenue: "$6,540",
-    image: "/test.webp",
-  },
-  {
-    name: "Phone Case",
-    sales: 543,
-    revenue: "$5,430",
-    image: "/test.webp",
-  },
+const categoryData = [
+  { name: "Electronics", value: 42 },
+  { name: "Clothing", value: 26 },
+  { name: "Accessories", value: 18 },
+  { name: "Home", value: 14 },
 ]
 
-const lowStockItems = [
-  { name: "Wireless Mouse", stock: 5, threshold: 10 },
-  { name: "Keyboard", stock: 3, threshold: 15 },
-  { name: "Monitor", stock: 2, threshold: 8 },
-  { name: "Webcam", stock: 1, threshold: 5 },
+const topProductsData = [
+  { name: "Wireless Headphones", units: 1234 },
+  { name: "Smart Watch", units: 987 },
+  { name: "Laptop Stand", units: 756 },
+  { name: "USB-C Cable", units: 654 },
+  { name: "Phone Case", units: 543 },
+]
+
+const kpiData = [
+  { name: "Conversion", value: 3.2, fillKey: "conv" },
+  { name: "Retention", value: 78, fillKey: "ret" },
+  { name: "CSAT", value: 96, fillKey: "csat" },
 ]
 
 export function DashboardOverview() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-        <div className="flex items-center space-x-2">
-          <Button>Download Report</Button>
+        <div className="flex items-center gap-2">
+          <Button>
+            <Download className="mr-2 h-4 w-4" />
+            Download Report
+          </Button>
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <stat.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">{stat.change}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {/* Charts Grid */}
+      <div className="grid gap-6 lg:grid-cols-7">
+        {/* Sales + Orders (Area) */}
+        <div className="lg:col-span-7 rounded-xl border bg-background p-4">
+          <div className="mb-4">
+            <h3 className="text-sm font-medium text-muted-foreground">Sales Overview</h3>
+            <div className="mt-1 text-xl font-semibold">Revenue & Orders</div>
+          </div>
+          <ChartContainer
+            className="h-[280px] w-full"
+            config={{
+              sales: { label: "Revenue", color: "var(--chart-1)" },
+              orders: { label: "Orders", color: "var(--chart-2)" },
+            }}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={salesData} margin={{ left: 8, right: 8 }}>
+                <defs>
+                  <linearGradient id="fillSales" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={"var(--chart-1)"} stopOpacity={0.4} />
+                    <stop offset="95%" stopColor={"var(--chart-1)"} stopOpacity={0.05} />
+                  </linearGradient>
+                  <linearGradient id="fillOrders" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={"var(--chart-2)"} stopOpacity={0.4} />
+                    <stop offset="95%" stopColor={"var(--chart-2)"} stopOpacity={0.05} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis dataKey="month" tickLine={false} axisLine={false} />
+                <YAxis
+                  yAxisId="left"
+                  tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis yAxisId="right" orientation="right" tickLine={false} axisLine={false} />
+                <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
+                <Area
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="sales"
+                  name="Revenue"
+                  stroke={"var(--color-sales)"}
+                  fill="url(#fillSales)"
+                  strokeWidth={2}
+                  dot={false}
+                />
+                <Area
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="orders"
+                  name="Orders"
+                  stroke={"var(--color-orders)"}
+                  fill="url(#fillOrders)"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle>Top Selling Products</CardTitle>
-            <CardDescription>Your best performing products this month</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Product</TableHead>
-                  <TableHead>Sales</TableHead>
-                  <TableHead>Revenue</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {topProducts.map((product) => (
-                  <TableRow key={product.name}>
-                    <TableCell className="flex items-center gap-2">
-                      <img
-                        src={product.image || "/placeholder.svg"}
-                        alt={product.name}
-                        className="h-8 w-8 rounded object-cover"
-                      />
-                      <span className="font-medium">{product.name}</span>
-                    </TableCell>
-                    <TableCell>{product.sales}</TableCell>
-                    <TableCell className="font-medium">{product.revenue}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        {/* Top Products (Horizontal Bars) */}
+        <div className="lg:col-span-4 rounded-xl border bg-background p-4">
+          <div className="mb-4">
+            <h3 className="text-sm font-medium text-muted-foreground">Top Selling Products</h3>
+            <div className="mt-1 text-xl font-semibold">By Units</div>
+          </div>
+          <ChartContainer
+            className="h-[320px] w-full"
+            config={{
+              units: { label: "Units", color: "var(--chart-1)" },
+            }}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={topProductsData.slice().reverse()}
+                layout="vertical"
+                margin={{ top: 8, left: 8, right: 12, bottom: 8 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
+                <XAxis type="number" axisLine={false} tickLine={false} />
+                <YAxis
+                  dataKey="name"
+                  type="category"
+                  width={140}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12 }}
+                />
+                <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
+                <Bar dataKey="units" radius={[6, 6, 6, 6]} fill={"var(--color-units)"} maxBarSize={18}>
+                  <LabelList
+                    dataKey="units"
+                    position="right"
+                    className="text-xs fill-foreground"
+                    formatter={(v: number) => v.toLocaleString()}
+                  />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </div>
 
-        <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-orange-500" />
-              Low Stock Alerts
-            </CardTitle>
-            <CardDescription>Products running low on inventory</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {lowStockItems.map((item) => (
-              <div key={item.name} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{item.name}</span>
-                  <Badge variant="destructive">{item.stock} left</Badge>
-                </div>
-                <Progress value={(item.stock / item.threshold) * 100} className="h-2" />
+        {/* KPIs (Radial Bars) */}
+        <div className="lg:col-span-3 rounded-xl border bg-background p-4">
+          <div className="mb-4">
+            <h3 className="text-sm font-medium text-muted-foreground">Key Metrics</h3>
+            <div className="mt-1 text-xl font-semibold">Store Performance</div>
+          </div>
+          <ChartContainer
+            className="h-[320px] w-full"
+            config={{
+              conv: { label: "Conversion", color: "var(--chart-2)" },
+              ret: { label: "Retention", color: "var(--chart-4)" },
+              csat: { label: "CSAT", color: "var(--chart-1)" },
+            }}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <RadialBarChart
+                innerRadius="30%"
+                outerRadius="90%"
+                data={kpiData.map((d) => ({
+                  ...d,
+                  // Normalize conversion (0-5%) to 0-100 ring; others already percent.
+                  percent: d.name === "Conversion" ? Math.min(100, d.value * 20) : d.value,
+                }))}
+                startAngle={90}
+                endAngle={-270}
+              >
+                <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
+                <RadialBar
+                  dataKey="percent"
+                  background
+                  cornerRadius={8}
+                  className="stroke-transparent"
+                  fillOpacity={0.9}
+                >
+                  {kpiData.map((entry, idx) => (
+                    <Cell key={entry.name} fill={`var(--color-${entry.fillKey})`} />
+                  ))}
+                </RadialBar>
+                <Tooltip
+                  content={
+                    <ChartTooltipContent
+                      formatter={(value, name, item) => {
+                        const label = item?.payload?.name
+                        const raw =
+                          label === "Conversion" ? `${item?.payload?.value}%` : `${item?.payload?.value}%`
+                        return [raw, label]
+                      }}
+                      indicator="dot"
+                    />
+                  }
+                />
+              </RadialBarChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+
+          {/* Legend */}
+          <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
+            {kpiData.map((k) => (
+              <div key={k.name} className="flex items-center gap-2">
+                <span
+                  className="inline-block h-2 w-2 rounded-full"
+                  style={{ background: `var(--color-${k.fillKey})` }}
+                />
+                <span className="text-muted-foreground">{k.name}</span>
+                <span className="ml-auto font-medium">{k.value}{k.name === "CSAT" ? "%" : k.name === "Retention" ? "%" : "%"}</span>
               </div>
             ))}
-            <Button className="w-full bg-transparent" variant="outline">
-              View All Inventory
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Orders</CardTitle>
-            <CardDescription>Latest orders from your store</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Order #{1000 + i}</p>
-                    <p className="text-sm text-muted-foreground">Customer {i} • 2 items</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">${(Math.random() * 200 + 50).toFixed(2)}</p>
-                    <Badge variant="outline">Pending</Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <Button className="w-full mt-4 bg-transparent" variant="outline">
-              View All Orders
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Store Performance</CardTitle>
-            <CardDescription>Key metrics for your store</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm">Conversion Rate</span>
-                <span className="text-sm font-medium">3.2%</span>
-              </div>
-              <Progress value={32} className="h-2" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm">Average Order Value</span>
-                <span className="text-sm font-medium">$127.50</span>
-              </div>
-              <Progress value={65} className="h-2" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm">Customer Satisfaction</span>
-                <span className="text-sm font-medium">4.8/5</span>
-              </div>
-              <Progress value={96} className="h-2" />
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   )

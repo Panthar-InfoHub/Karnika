@@ -11,9 +11,9 @@ const ProductCreateSchema = z.object({
   description: z.string().optional(),
   images: z.array(z.string()).min(1),
   price: z.coerce.number(),
-  categoryId: z.string(),
+  categoryId: z.string().optional(),
   stock: z.coerce.number(),
-  variants: z.array(z.string()).min(1),
+  variants: z.array(z.string()),
 });
 
 const ProductUpdateSchema = z.object({
@@ -22,9 +22,9 @@ const ProductUpdateSchema = z.object({
   description: z.string().optional(),
   images: z.array(z.string()).min(1),
   price: z.coerce.number(),
-  categoryId: z.string(),
-  stock: z.coerce.number(),
-  variants: z.array(z.string()).min(1),
+  categoryId: z.string().optional(),
+  stock: z.coerce.number().optional(),
+  variants: z.array(z.string()),
 });
 
 export async function createProductAction(formData: FormData) {
@@ -32,31 +32,20 @@ export async function createProductAction(formData: FormData) {
 
   // Handle images array from FormData
   const images: string[] = [];
+  const variants: string[] = [];
   for (const [key, value] of formData.entries()) {
     if (key.startsWith("images[") && typeof value === "string") {
       images.push(value);
     }
+    if (key.startsWith("variants[") && typeof value === "string") {
+      variants.push(value);
+    }
   }
-
-  // Handle variants from comma-separated string
-  const variantsString = formData.get("variants") as string;
-  const variants = variantsString
-    ? variantsString
-        .split(",")
-        .map((v) => v.trim())
-        .filter((v) => v.length > 0)
-    : [];
-
   const parsed = ProductCreateSchema.safeParse({
     ...rawObject,
-    images:
-      images.length > 0
-        ? images
-        : [
-            "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=60",
-          ],
+    images,
     variants,
-    price: Number(rawObject.price) * 100, // Convert to cents
+    price: rawObject.price,
   });
 
   if (!parsed.success) {
@@ -87,33 +76,22 @@ export async function createProductAction(formData: FormData) {
 export async function updateProductAction(formData: FormData) {
   const rawObject = Object.fromEntries(formData.entries());
 
-  // Handle images array from FormData
   const images: string[] = [];
+  const variants: string[] = [];
   for (const [key, value] of formData.entries()) {
     if (key.startsWith("images[") && typeof value === "string") {
       images.push(value);
     }
+    if (key.startsWith("variants[") && typeof value === "string") {
+      variants.push(value);
+    }
   }
-
-  // Handle variants from comma-separated string
-  const variantsString = formData.get("variants") as string;
-  const variants = variantsString
-    ? variantsString
-        .split(",")
-        .map((v) => v.trim())
-        .filter((v) => v.length > 0)
-    : ["Default"];
 
   const parsed = ProductUpdateSchema.safeParse({
     ...rawObject,
-    images:
-      images.length > 0
-        ? images
-        : [
-            "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=60",
-          ],
+    images,
     variants,
-    price: Number(rawObject.price) * 100, // Convert to cents
+    price: rawObject.price, // Convert to cents
   });
 
   if (!parsed.success) {

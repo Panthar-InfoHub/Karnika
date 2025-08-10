@@ -30,6 +30,7 @@ import {
 import { Edit, MoreHorizontal, Plus, Search, Trash2 } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import CreateCategory from "./create-category";
+import { deleteCategoryAction } from "@/actions/categoryActions";
 
 interface CategoryWithCount {
   id: string;
@@ -61,9 +62,8 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
   const handleDeleteCategory = async (category: CategoryWithCount) => {
     setIsDeleting(category.id);
     try {
-      // TODO: Implement delete category action
       console.log("Deleting category:", category.id);
-      // await deleteCategoryAction(category.id);
+      await deleteCategoryAction(category.id);
     } catch (error) {
       console.error("Failed to delete category:", error);
     } finally {
@@ -153,10 +153,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                           <DropdownMenuItem
                             className="text-destructive"
                             onClick={() => setDeleteCategory(category)}
-                            disabled={
-                              isDeleting === category.id ||
-                              category._count.products > 0
-                            }
+                            disabled={isDeleting === category.id}
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
                             {isDeleting === category.id
