@@ -9,11 +9,38 @@ const TopSellers = async () => {
     select: {
       id: true,
       name: true,
-      price: true,
       images: true,
-      variants: true,
+      slug: true,
+      variants: {
+        select: {
+          id: true,
+          price: true,
+          stock: true,
+          variantName: true,
+          isDefault: true,
+          attributes: true,
+        },
+      },
     },
   });
+
+  // Serialize the products data to avoid JSON serialization issues
+  const serializedProducts = products.map(product => ({
+    id: product.id,
+    name: product.name,
+    images: product.images,
+    slug: product.slug,
+    variants: product.variants.map(variant => ({
+      id: variant.id,
+      price: variant.price,
+      stock: variant.stock,
+      variantName: variant.variantName,
+      isDefault: variant.isDefault,
+      attributes: typeof variant.attributes === 'object' && variant.attributes 
+        ? variant.attributes as Record<string, string>
+        : {}
+    }))
+  }));
 
   return (
     <section className="py-16 ">
@@ -23,12 +50,12 @@ const TopSellers = async () => {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.map((product, index) => (
+          {serializedProducts.map((product, index) => (
             <div
               key={product.id}
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <ProductCard {...product} />
+              <ProductCard product={product} />
             </div>
           ))}
         </div>

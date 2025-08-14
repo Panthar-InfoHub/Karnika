@@ -9,7 +9,9 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useCart } from "@/context/CartContext";
-import { placeOrder } from "@/actions/orderActions";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 
 const Cart = () => {
   const {
@@ -21,6 +23,13 @@ const Cart = () => {
     total,
     itemCount,
   } = useCart();
+  
+  const router = useRouter();
+
+  const handleCheckout = () => {
+    closeCart();
+    router.push('/checkout');
+  };
 
   return (
     <Sheet open={isOpen} onOpenChange={closeCart}>
@@ -70,11 +79,18 @@ const Cart = () => {
                       <h4 className="font-semibold text-farm-navy text-sm">
                         {item.name}
                       </h4>
-                      {item.variant && (
-                        <p className="text-xs text-gray-500">{item.variant}</p>
+                      <p className="text-xs text-gray-500">{item.variantName}</p>
+                      {Object.keys(item.attributes).length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {Object.entries(item.attributes).map(([key, value]) => (
+                            <Badge key={key} variant="outline" className="text-xs">
+                              {key}: {value}
+                            </Badge>
+                          ))}
+                        </div>
                       )}
                       <p className="text-farm-orange font-bold">
-                        ₹{item.price.toLocaleString()}
+                        ₹{item.price.toFixed(2)}
                       </p>
                     </div>
 
@@ -84,7 +100,7 @@ const Cart = () => {
                         variant="outline"
                         className="h-8 w-8 p-0"
                         onClick={() =>
-                          updateQuantity(item.id, item.quantity - 1)
+                          updateQuantity(item.id, item.quantity - 1, item.variantId)
                         }
                       >
                         <Minus className="h-3 w-3" />
@@ -99,7 +115,7 @@ const Cart = () => {
                         variant="outline"
                         className="h-8 w-8 p-0"
                         onClick={() =>
-                          updateQuantity(item.id, item.quantity + 1)
+                          updateQuantity(item.id, item.quantity + 1, item.variantId)
                         }
                       >
                         <Plus className="h-3 w-3" />
@@ -110,7 +126,7 @@ const Cart = () => {
                       size="sm"
                       variant="ghost"
                       className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeItem(item.id, item.variantId)}
                     >
                       <X className="h-4 w-4" />
                     </Button>
@@ -126,7 +142,7 @@ const Cart = () => {
               <div className="flex justify-between items-center text-lg font-bold">
                 <span className="text-farm-navy">Total:</span>
                 <span className="text-farm-orange">
-                  ₹{total.toLocaleString()}
+                  ₹{total.toFixed(2)}
                 </span>
               </div>
 
@@ -134,17 +150,7 @@ const Cart = () => {
                 <Button
                   className="w-full font-semibold py-3"
                   size="lg"
-                  onClick={() =>
-                    placeOrder(
-                      items.map((item) => ({
-                        productName: item.name,
-                        productImage: item.image,
-                        productId: item.id,
-                        quantity: item.quantity,
-                        price: item.price,
-                      }))
-                    )
-                  }
+                  onClick={handleCheckout}
                 >
                   Checkout
                 </Button>

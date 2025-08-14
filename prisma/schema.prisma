@@ -81,38 +81,69 @@ model Verification {
   @@map("verification")
 }
 
-model Product {
-  id          String      @id @default(uuid())
-  name        String
-  description String?
-  images      String[]    @default([])
-  price       Int
-  category    Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  categoryId  String?
-  stock       Int         @default(0)
-  variants    String[]    @default([])
-  slug        String      @unique
-  updatedAt   DateTime    @default(now())
-  createdAt   DateTime    @default(now())
-  orders      OrderItem[]
-
-  @@map("product")
-}
-
 model Category {
   id          String    @id @default(uuid())
   name        String
+  slug        String    @unique
   description String?
   image       String?
-  slug        String    @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now())
   products    Product[]
 
   @@map("category")
 }
 
-enum ORDER_STATUS {
+model Product {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  images      String[]  @default([])
+  category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  categoryId  String?
+  totalStock  Int       @default(0) // sum of all variant stocks for dashboard display
+  slug        String    @unique
+  updatedAt   DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+
+  variants ProductVariant[] // relation to variants
+  orders   OrderItem[]
+
+  @@map("product")
+}
+
+model ProductVariant {
+  id        String  @id @default(uuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  price Int
+  stock Int
+
+  attributes Json @default("{}")
+
+  variantName String @default("Default")
+
+  isDefault Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  orderItems OrderItem[]
+
+  @@map("product_variant")
+}
+
+enum PAYMENT_STATUS {
   PENDING
-  PROCESSING
+  SUCCESS
+  FAILED
+}
+
+enum ORDER_STATUS {
+  PENDING // order placed but not yet processed
+  CONFIRMED // payment done (if prepaid)
+  PACKED
   SHIPPED
   DELIVERED
   CANCELLED
@@ -123,14 +154,25 @@ model Order {
   user   User   @relation(fields: [userId], references: [id])
   userId String
 
-  items       OrderItem[]
-  status      ORDER_STATUS @default(PENDING)
-  totalAmount Int
-  paymentId   String? // e.g., Razorpay payment ID
+  items OrderItem[]
+
+  // Payment details
+  totalAmount       Int // in rupees
+  paymentStatus     PAYMENT_STATUS @default(PENDING)
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  paymentMethod     String?
+  currency          String         @default("INR")
+  paymentCapturedAt DateTime?
+  paymentMeta       Json?
+
+  // Order details
+  orderStatus ORDER_STATUS @default(PENDING)
   address     String
   phone       String
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
   @@map("order")
 }
@@ -143,9 +185,13 @@ model OrderItem {
   product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
   productId String?
 
+  variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  variantId String?
+
   quantity    Int
-  price       Int // snapshot of price at time of purchase
-  productName String // snapshot of name
+  price       Int
+  productName String
+  variantName String @default("Default")
 
   @@map("order_item")
 }

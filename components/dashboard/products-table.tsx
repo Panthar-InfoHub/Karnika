@@ -143,14 +143,43 @@ export function ProductsTable({
                       />
                       <span className="font-medium">{product.name}</span>
                     </TableCell>
-                    <TableCell>${(product.price / 100).toFixed(2)}</TableCell>
+                    <TableCell>
+                      {/* Display price range or single price */}
+                      {(() => {
+                        if (!product.variants || product.variants.length === 0) return "N/A";
+                        
+                        // If there's a default variant, show its price prominently
+                        const defaultVariant = product.variants.find(v => v.isDefault);
+                        if (defaultVariant && product.variants.length === 1) {
+                          return `₹${defaultVariant.price.toFixed(2)}`;
+                        }
+                        
+                        // Show price range if multiple variants
+                        const prices = product.variants.map(v => v.price);
+                        const minPrice = Math.min(...prices);
+                        const maxPrice = Math.max(...prices);
+                        
+                        if (minPrice === maxPrice) {
+                          return `₹${minPrice.toFixed(2)}`;
+                        }
+                        
+                        return (
+                          <div className="flex flex-col">
+                            <span>₹{minPrice.toFixed(2)} - ₹{maxPrice.toFixed(2)}</span>
+                            <span className="text-xs text-gray-500">
+                              {product.variants.length} variants
+                            </span>
+                          </div>
+                        );
+                      })()}
+                    </TableCell>
                     <TableCell>
                       <Badge
                         variant={
-                          product.stock < 20 ? "destructive" : "secondary"
+                          product.totalStock < 20 ? "destructive" : "secondary"
                         }
                       >
-                        {product.stock}
+                        {product.totalStock}
                       </Badge>
                     </TableCell>
                     <TableCell>

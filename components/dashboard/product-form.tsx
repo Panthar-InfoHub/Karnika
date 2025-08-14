@@ -32,7 +32,7 @@ import {
 import { useRouter } from "next/navigation";
 import { MediaSelector } from "./media-selector";
 import ChooseMedia from "./ChooseMedia";
-import { TagsInput } from "../ui/tags-input";
+import { VariantManager } from "./variant-manager";
 
 interface ProductFormProps {
   product?: ProductWithCategory;
@@ -54,7 +54,9 @@ export function ProductForm({
   const [selectedCategory, setSelectedCategory] = React.useState<string | null>(
     product?.categoryId || null
   );
-  const [tags, setTags] = React.useState<string[]>(product?.variants || []);
+  const [variants, setVariants] = React.useState<any[]>(
+    product?.variants || []
+  );
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   // const [isMediaDialogOpen, setIsMediaDialogOpen] = React.useState(false);
 
@@ -68,9 +70,8 @@ export function ProductForm({
         formData.append(`images[${index}]`, image);
       });
 
-      tags.forEach((tag, index) => {
-        formData.append(`variants[${index}]`, tag);
-      });
+      // Add variant data
+      formData.append("variants", JSON.stringify(variants));
 
       if (mode === "create") {
         await createProductAction(formData);
@@ -153,7 +154,7 @@ export function ProductForm({
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="price">Price</Label>
+              <Label htmlFor="price">Base Price (will be used for variants)</Label>
               <Input
                 id="price"
                 name="price"
@@ -161,39 +162,55 @@ export function ProductForm({
                 step="0.01"
                 min="0"
                 required
-                defaultValue={
-                  product?.price ? (product.price / 100).toFixed(2) : ""
-                }
+                defaultValue={(() => {
+                  const defaultVariant = product?.variants?.find(v => v.isDefault) || product?.variants?.[0];
+                  return defaultVariant ? defaultVariant.price.toFixed(2) : "";
+                })()}
                 placeholder="0.00"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="stock">Stock Quantity</Label>
+              <Label htmlFor="stock">Base Stock (will be used for variants)</Label>
               <Input
                 id="stock"
                 name="stock"
                 type="number"
                 min="0"
                 required
-                defaultValue={product?.stock}
+                defaultValue={(() => {
+                  const defaultVariant = product?.variants?.find(v => v.isDefault) || product?.variants?.[0];
+                  return defaultVariant?.stock || 0;
+                })()}
                 placeholder="0"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="variants">Variants (Optional)</Label>
-              <TagsInput
-                value={tags}
-                onValueChange={setTags}
-                placeholder="Enter product variants"
-                maxItems={5}
-                minItems={0}
               />
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Variant Management */}
+      <VariantManager
+        onVariantsChange={setVariants}
+        initialVariants={(product?.variants || []).map(variant => ({
+          id: variant.id,
+          attributes: typeof variant.attributes === 'object' && variant.attributes 
+            ? variant.attributes as Record<string, string>
+            : {},
+          variantName: variant.variantName,
+          price: variant.price,
+          stock: variant.stock,
+          isDefault: variant.isDefault
+        }))}
+        basePrice={(() => {
+          const defaultVariant = product?.variants?.find(v => v.isDefault) || product?.variants?.[0];
+          return defaultVariant?.price || 0;
+        })()}
+        baseStock={(() => {
+          const defaultVariant = product?.variants?.find(v => v.isDefault) || product?.variants?.[0];
+          return defaultVariant?.stock || product?.totalStock || 0;
+        })()}
+      />
 
       {/* Media Section */}
       <Card>

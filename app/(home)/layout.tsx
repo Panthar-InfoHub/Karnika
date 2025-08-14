@@ -1,5 +1,6 @@
 import Footer from "@/components/home/Footer";
 import Header from "@/components/home/Headers";
+import Cart from "@/components/home/Cart";
 import { CartProvider } from "@/context/CartContext";
 
 export default function HomeLayout({
@@ -13,6 +14,7 @@ export default function HomeLayout({
         <Header />
         <main className="flex-1 w-full ">{children}</main>
         <Footer />
+        <Cart />
       </CartProvider>
     </div>
   );

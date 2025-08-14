@@ -24,6 +24,7 @@ async function getProductData(id: string) {
               name: true,
             },
           },
+          variants: true,
         },
       }),
       prisma.category.findMany({

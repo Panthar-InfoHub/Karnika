@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,10 +27,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Edit, MoreHorizontal, Plus, Search, Trash2 } from "lucide-react";
+import { Edit, MoreHorizontal, Search, Trash2 } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import CreateCategory from "./create-category";
 import { deleteCategoryAction } from "@/actions/categoryActions";
+import { toast } from "sonner";
 
 interface CategoryWithCount {
   id: string;
@@ -48,12 +49,11 @@ interface CategoriesTableProps {
 }
 
 export default function CategoriesTable({ categories }: CategoriesTableProps) {
-  const [searchTerm, setSearchTerm] = React.useState("");
-  const [deleteCategory, setDeleteCategory] =
-    React.useState<CategoryWithCount | null>(null);
-  const [isDeleting, setIsDeleting] = React.useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [deleteCategory, setDeleteCategory] = useState<CategoryWithCount | null>(null);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-  const filteredCategories = React.useMemo(() => {
+  const filteredCategories = useMemo(() => {
     return categories.filter((category) =>
       category.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -62,10 +62,13 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
   const handleDeleteCategory = async (category: CategoryWithCount) => {
     setIsDeleting(category.id);
     try {
-      console.log("Deleting category:", category.id);
-      await deleteCategoryAction(category.id);
+      const resp = await deleteCategoryAction(category.id);
+
+      if (resp?.error) {
+        throw new Error(resp.error);
+      }
     } catch (error) {
-      console.error("Failed to delete category:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to delete category");
     } finally {
       setIsDeleting(null);
       setDeleteCategory(null);

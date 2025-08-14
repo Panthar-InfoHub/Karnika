@@ -1,6 +1,6 @@
 "use client";
 
-import { Mail, MoreHorizontal, Search, User } from "lucide-react";
+import { Mail, MoreHorizontal, Search, Trash2, User } from "lucide-react";
 import { Input } from "../ui/input";
 import {
   Card,
@@ -30,15 +30,35 @@ import {
 import { Customer } from "./customers-page";
 import React from "react";
 import { Button } from "../ui/button";
+import Link from "next/link";
+import { ConfirmDialog } from "../ui/confirm-dialog";
+import { toast } from "sonner";
 
 function CustomerSearch({ customers }: { customers: Customer[] }) {
   const [searchTerm, setSearchTerm] = React.useState("");
+  const [deleteUser, setDeleteUser] = React.useState<Customer | null>(null);
+  const [isDeleting, setIsDeleting] = React.useState<string | null>(null);
+
+  const handleDeleteUser = async (user: Customer) => {
+    setIsDeleting(user.id);
+
+    try {
+      console.log("deleting user:", user.id);
+      toast.success("User deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete user");
+    } finally {
+      setDeleteUser(null);
+      setIsDeleting(null);
+    }
+  };
 
   const filteredCustomers = customers.filter(
     (customer) =>
       customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
 
   return (
     <>
@@ -92,9 +112,9 @@ function CustomerSearch({ customers }: { customers: Customer[] }) {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>-</TableCell>
-                    <TableCell>-</TableCell>
-                    <TableCell>-</TableCell>
+                    <TableCell>{customer.totalOrders}</TableCell>
+                    <TableCell>₹{customer.totalSpent}</TableCell>
+                    <TableCell>{customer.createdAt?.toLocaleDateString()}</TableCell>
                     <TableCell>
                       <Badge
                         variant={
@@ -114,16 +134,23 @@ function CustomerSearch({ customers }: { customers: Customer[] }) {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>
+                          {/* <DropdownMenuItem>
                             <User className="mr-2 h-4 w-4" />
                             View Profile
+                          </DropdownMenuItem> */}
+                          <DropdownMenuItem asChild>
+                            <Link href={`mailto:${customer.email}`} target="blank">
+                              <Mail className="mr-2 h-4 w-4" />
+                              Send Email
+                            </Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Mail className="mr-2 h-4 w-4" />
-                            Send Email
+                          <DropdownMenuItem
+                            onClick={() => setDeleteUser(customer)}
+                            disabled={isDeleting === customer.id}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete User
                           </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>View Orders</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -143,6 +170,20 @@ function CustomerSearch({ customers }: { customers: Customer[] }) {
           </Table>
         </CardContent>
       </Card>
+      <ConfirmDialog
+        open={!!deleteUser}
+        onOpenChange={() => setDeleteUser(null)}
+        title="Delete User"
+        description={
+          deleteUser
+            ? `Are you sure you want to delete "${deleteUser.name}"? This action cannot be undone.`
+            : ""
+        }
+        onConfirm={() => deleteUser && handleDeleteUser(deleteUser)}
+        confirmText="Delete"
+        isLoading={isDeleting === deleteUser?.id}
+        variant="destructive"
+      />
     </>
   );
 }

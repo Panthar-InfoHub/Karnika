@@ -3,6 +3,7 @@ import { prisma } from "@/prisma/db";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AdminOrderType } from "@/types/DbType";
 
 async function getOrdersData() {
   try {
@@ -21,6 +22,12 @@ async function getOrdersData() {
                 name: true,
                 images: true,
               }
+            },
+            variant: {
+              select: {
+                variantName: true,
+                attributes: true,
+              }
             }
           }
         }
@@ -37,7 +44,7 @@ async function getOrdersData() {
   }
 }
 
-function OrdersLoading() {
+export function OrdersLoading() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">

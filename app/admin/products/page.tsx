@@ -29,6 +29,7 @@ async function getProductsData() {
               name: true,
             },
           },
+          variants: true,
         },
         orderBy: {
           createdAt: "desc",

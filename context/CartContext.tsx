@@ -11,17 +11,20 @@ export interface CartItem {
   id: string;
   name: string;
   price: number;
-  image: string;
+  image?: string;
   quantity: number;
-  variant?: string;
+  variantId: string;
+  variantName: string;
+  attributes: Record<string, string>;
 }
 
 interface CartContextType {
   items: CartItem[];
   isOpen: boolean;
   addItem: (item: Omit<CartItem, "quantity">) => void;
-  removeItem: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
+  removeItem: (id: string, variantId?: string) => void;
+  updateQuantity: (id: string, quantity: number, variantId?: string) => void;
+  clearCart: () => void;
   openCart: () => void;
   closeCart: () => void;
   total: number;
@@ -62,11 +65,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const addItem = (newItem: Omit<CartItem, "quantity">) => {
     setItems((prev) => {
       const existingItem = prev.find(
-        (item) => item.id === newItem.id && item.variant === newItem.variant
+        (item) => item.id === newItem.id && item.variantId === newItem.variantId
       );
       if (existingItem) {
         return prev.map((item) =>
-          item.id === newItem.id && item.variant === newItem.variant
+          item.id === newItem.id && item.variantId === newItem.variantId
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
@@ -75,18 +78,28 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const removeItem = (id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
+  const removeItem = (id: string, variantId?: string) => {
+    setItems((prev) => prev.filter((item) => 
+      variantId ? !(item.id === id && item.variantId === variantId) : item.id !== id
+    ));
   };
 
-  const updateQuantity = (id: string, quantity: number) => {
+  const updateQuantity = (id: string, quantity: number, variantId?: string) => {
     if (quantity <= 0) {
-      removeItem(id);
+      removeItem(id, variantId);
       return;
     }
     setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
+      prev.map((item) => 
+        variantId 
+          ? (item.id === id && item.variantId === variantId ? { ...item, quantity } : item)
+          : (item.id === id ? { ...item, quantity } : item)
+      )
     );
+  };
+
+  const clearCart = () => {
+    setItems([]);
   };
 
   const openCart = () => setIsOpen(true);
@@ -106,6 +119,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         addItem,
         removeItem,
         updateQuantity,
+        clearCart,
         openCart,
         closeCart,
         total,

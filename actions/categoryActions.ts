@@ -11,25 +11,31 @@ export async function createCategoryAction(formData: FormData) {
 
   const slug = generateSlug(name);
 
-  console.log("Creating category with data:", { name, description, image, slug });
-  await prisma.category.create({
-    data: {
-      name,
-      description,
-      image,
-      slug,
-    },
-  });
+  try {
+    await prisma.category.create({
+      data: {
+        name,
+        description,
+        image,
+        slug,
+      },
+    });
+    revalidatePath("/admin/categories");
+    revalidatePath("/admin/products/new");
 
-  revalidatePath("/admin/categories");
-  revalidatePath("/admin/products/new");
+    return { success: true };
+  } catch (error) {
+    return { error: "Failed to create category" };
+  }
 }
 
 export async function deleteCategoryAction(categoryId: string) {
-  console.log("Deleting category with ID:", categoryId);
-  await prisma.category.delete({
-    where: { id: categoryId },
-  });
-
-  revalidatePath("/admin/categories");
+  try {
+    await prisma.category.delete({
+      where: { id: categoryId },
+    });
+    revalidatePath("/admin/categories");
+  } catch (error) {
+    return { error: "Failed to delete category" };
+  }
 }

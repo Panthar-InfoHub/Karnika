@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Button } from "../ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -15,8 +16,10 @@ import { createCategoryAction } from "@/actions/categoryActions";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
+import { toast } from "sonner";
 
-const CreateCategory = ({trigger}: {trigger?: React.ReactNode}) => {
+const CreateCategory = ({ trigger }: { trigger?: React.ReactNode }) => {
+  const [isOpen, setIsOpen] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,16 +41,26 @@ const CreateCategory = ({trigger}: {trigger?: React.ReactNode}) => {
 
       formData.append("image", preview);
 
-      await createCategoryAction(formData);
-      setPreview(null); // Reset preview after successful creation
-    } catch (error) {
-      console.error("Failed to create category:", error);
+      const resp = await createCategoryAction(formData);
+
+      if (resp.error) {
+        toast.error(resp.error);
+        return;
+      }
+      toast.success("Category created successfully");
+    } catch (error: any) {
+
+      toast.error("Failed to create category");
+
+    } finally {
+      setPreview(null);
+      setIsOpen(false);
     }
   };
 
   return (
     <div>
-      <Dialog>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
           {trigger || (
             <Button>
@@ -92,6 +105,7 @@ const CreateCategory = ({trigger}: {trigger?: React.ReactNode}) => {
                 <label
                   htmlFor="photo"
                   className={preview ? "hidden" : "cursor-pointer"}
+                  tabIndex={1}
                 >
                   <Input
                     id="photo"
@@ -101,7 +115,7 @@ const CreateCategory = ({trigger}: {trigger?: React.ReactNode}) => {
                     className="hidden"
                     onChange={handleFileChange}
                   />
-                  <div className="flex flex-col items-center justify-center p-6 border border-dashed rounded-lg hover:border-gray-400 transition-colors cursor-pointer">
+                  <div className="flex flex-col items-center justify-center p-6 border border-gray-600 border-dashed rounded-lg hover:border-gray-400 transition-colors cursor-pointer">
                     <Upload className="w-6 h-6 text-gray-400 mb-2" />
                     <p className="text-sm text-gray-600">
                       {preview ? "Change image" : "Click to upload"}

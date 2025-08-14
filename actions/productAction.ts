@@ -10,10 +10,10 @@ const ProductCreateSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
   images: z.array(z.string()).min(1),
-  price: z.coerce.number(),
+  price: z.coerce.number(), // Base price for default variant
   categoryId: z.string().optional(),
-  stock: z.coerce.number(),
-  variants: z.array(z.string()),
+  stock: z.coerce.number(), // Base stock for default variant
+  variants: z.string().optional(), // JSON string of variants
 });
 
 const ProductUpdateSchema = z.object({
@@ -21,10 +21,10 @@ const ProductUpdateSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
   images: z.array(z.string()).min(1),
-  price: z.coerce.number(),
+  price: z.coerce.number().optional(), // Base price for default variant
   categoryId: z.string().optional(),
-  stock: z.coerce.number().optional(),
-  variants: z.array(z.string()),
+  stock: z.coerce.number().optional(), // Base stock for default variant
+  variants: z.string().optional(), // JSON string of variants
 });
 
 export async function createProductAction(formData: FormData) {
@@ -32,19 +32,15 @@ export async function createProductAction(formData: FormData) {
 
   // Handle images array from FormData
   const images: string[] = [];
-  const variants: string[] = [];
   for (const [key, value] of formData.entries()) {
     if (key.startsWith("images[") && typeof value === "string") {
       images.push(value);
     }
-    if (key.startsWith("variants[") && typeof value === "string") {
-      variants.push(value);
-    }
   }
+  
   const parsed = ProductCreateSchema.safeParse({
     ...rawObject,
     images,
-    variants,
     price: rawObject.price,
   });
 
@@ -57,12 +53,63 @@ export async function createProductAction(formData: FormData) {
   }
 
   const slug = generateSlug(parsed.data.name);
-  const data = { ...parsed.data, slug };
+  const price = parsed.data.price;
 
   try {
-    await prisma.product.create({
-      data,
+    // Parse variants if provided
+    let variantsData: any[] = [];
+    if (parsed.data.variants) {
+      try {
+        variantsData = JSON.parse(parsed.data.variants);
+      } catch (e) {
+        console.error("Failed to parse variants:", e);
+      }
+    }
+
+    // Calculate total stock
+    const totalStock = variantsData.length > 0 
+      ? variantsData.reduce((sum, variant) => sum + (variant.stock || 0), 0)
+      : parsed.data.stock;
+
+    // Create product
+    const product = await prisma.product.create({
+      data: {
+        name: parsed.data.name,
+        description: parsed.data.description,
+        images: parsed.data.images,
+        categoryId: parsed.data.categoryId,
+        totalStock,
+        slug,
+      },
     });
+
+    // Create variants
+    if (variantsData.length > 0) {
+      // Create custom variants
+      await prisma.productVariant.createMany({
+        data: variantsData.map((variant, index) => ({
+          productId: product.id,
+          price: variant.price || price,
+          stock: variant.stock || 0,
+          attributes: variant.attributes || {},
+          variantName: variant.variantName || `Variant ${index + 1}`,
+          isDefault: index === 0, // First variant is default
+        })),
+      });
+    } else {
+      // Create default variant
+      await prisma.productVariant.create({
+        data: {
+          productId: product.id,
+          price,
+          stock: parsed.data.stock,
+          attributes: {},
+          variantName: "Default",
+          isDefault: true,
+        },
+      });
+    }
+
     revalidatePath("/admin/products");
   } catch (e) {
     if (e instanceof PrismaClientKnownRequestError) {
@@ -77,21 +124,16 @@ export async function updateProductAction(formData: FormData) {
   const rawObject = Object.fromEntries(formData.entries());
 
   const images: string[] = [];
-  const variants: string[] = [];
   for (const [key, value] of formData.entries()) {
     if (key.startsWith("images[") && typeof value === "string") {
       images.push(value);
-    }
-    if (key.startsWith("variants[") && typeof value === "string") {
-      variants.push(value);
     }
   }
 
   const parsed = ProductUpdateSchema.safeParse({
     ...rawObject,
     images,
-    variants,
-    price: rawObject.price, // Convert to cents
+    price: rawObject.price,
   });
 
   if (!parsed.success) {
@@ -106,10 +148,76 @@ export async function updateProductAction(formData: FormData) {
   const slug = generateSlug(updateData.name);
 
   try {
+    // Parse variants if provided
+    let variantsData: any[] = [];
+    if (parsed.data.variants) {
+      try {
+        variantsData = JSON.parse(parsed.data.variants);
+      } catch (e) {
+        console.error("Failed to parse variants:", e);
+      }
+    }
+
+    // Calculate total stock
+    const totalStock = variantsData.length > 0 
+      ? variantsData.reduce((sum, variant) => sum + (variant.stock || 0), 0)
+      : parsed.data.stock;
+
+    // Update product
     await prisma.product.update({
       where: { id: productId },
-      data: { ...updateData, slug },
+      data: {
+        name: updateData.name,
+        description: updateData.description,
+        images: updateData.images,
+        categoryId: updateData.categoryId,
+        totalStock,
+        slug,
+      },
     });
+
+    // Handle variants
+    if (variantsData.length > 0) {
+      // Delete existing variants
+      await prisma.productVariant.deleteMany({
+        where: { productId },
+      });
+
+      // Create new variants
+      await prisma.productVariant.createMany({
+        data: variantsData.map((variant, index) => ({
+          productId,
+          price: variant.price || Math.round((updateData.price || 0) * 100),
+          stock: variant.stock || 0,
+          attributes: variant.attributes || {},
+          variantName: variant.variantName || `Variant ${index + 1}`,
+          isDefault: index === 0,
+        })),
+      });
+    } else {
+      // Update default variant if price/stock provided
+      if (updateData.price !== undefined || updateData.stock !== undefined) {
+        const defaultVariant = await prisma.productVariant.findFirst({
+          where: { productId, isDefault: true },
+        });
+
+        if (defaultVariant) {
+          const updateVariantData: any = {};
+          if (updateData.price !== undefined) {
+            updateVariantData.price = Math.round(updateData.price * 100);
+          }
+          if (updateData.stock !== undefined) {
+            updateVariantData.stock = updateData.stock;
+          }
+
+          await prisma.productVariant.update({
+            where: { id: defaultVariant.id },
+            data: updateVariantData,
+          });
+        }
+      }
+    }
+
     revalidatePath("/admin/products");
   } catch (e) {
     if (e instanceof PrismaClientKnownRequestError) {
@@ -122,9 +230,16 @@ export async function updateProductAction(formData: FormData) {
 
 export async function deleteProductAction(productId: string) {
   try {
+    // Delete variants first (cascade should handle this, but being explicit)
+    await prisma.productVariant.deleteMany({
+      where: { productId },
+    });
+    
+    // Delete product
     await prisma.product.delete({
       where: { id: productId },
     });
+    
     revalidatePath("/admin/products");
   } catch (e) {
     console.error("Failed to delete product:", e);

@@ -43,34 +43,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Eye, MoreHorizontal, Plus, Search, Truck } from "lucide-react";
-import { placeOrder } from "@/actions/orderActions";
-import { OrderType } from "@/types/DbType";
-
-const dummyCreateOrder = [
-  {
-    productName: "Product A",
-    productId: "80f58d4c-f4be-4f98-a874-5d657646253e",
-    quantity: 2,
-    price: 99.99,
-  },
-  {
-    productName: "Product A",
-    productId: "80f58d4c-f4be-4f98-a874-5d657646253e",
-    quantity: 1,
-    price: 49.99,
-  },
-  {
-    productName: "Product A",
-    productId: "80f58d4c-f4be-4f98-a874-5d657646253e",
-    quantity: 3,
-    price: 29.99,
-  },
-];
+import { AdminOrderType } from "@/types/DbType";
 
 const getStatusColor = (status: string) => {
-  switch (status) {
+  switch (status.toLowerCase()) {
     case "pending":
       return "secondary";
+    case "processing":
+      return "default";
     case "shipped":
       return "default";
     case "delivered":
@@ -82,7 +62,7 @@ const getStatusColor = (status: string) => {
   }
 };
 
-export function OrdersPage({ orders }: { orders: OrderType[] }) {
+export function OrdersPage({ orders }: { orders: AdminOrderType[] }) {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState("all");
 
@@ -93,7 +73,7 @@ export function OrdersPage({ orders }: { orders: OrderType[] }) {
 
     // || order.customer.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
-      statusFilter === "all" || order.status === statusFilter;
+      statusFilter === "all" || order.orderStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -101,9 +81,6 @@ export function OrdersPage({ orders }: { orders: OrderType[] }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Orders</h2>
-        <Button onClick={() => placeOrder(dummyCreateOrder)}>
-          Create Orders
-        </Button>
       </div>
 
       <div className="flex items-center space-x-2">
@@ -122,10 +99,11 @@ export function OrdersPage({ orders }: { orders: OrderType[] }) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="shipped">Shipped</SelectItem>
-            <SelectItem value="delivered">Delivered</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
+            <SelectItem value="PENDING">Pending</SelectItem>
+            <SelectItem value="PROCESSING">Processing</SelectItem>
+            <SelectItem value="SHIPPED">Shipped</SelectItem>
+            <SelectItem value="DELIVERED">Delivered</SelectItem>
+            <SelectItem value="CANCELLED">Cancelled</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -165,11 +143,11 @@ export function OrdersPage({ orders }: { orders: OrderType[] }) {
                   <TableCell>{order.phone}</TableCell>
                   <TableCell>{order.createdAt.toLocaleDateString()}</TableCell>
                   <TableCell>
-                    <Badge variant={getStatusColor(order.status)}>
-                      {order.status}
+                    <Badge variant={getStatusColor(order.orderStatus)}>
+                      {order.orderStatus}
                     </Badge>
                   </TableCell>
-                  <TableCell>${order.totalAmount}</TableCell>
+                  <TableCell>₹{order.totalAmount.toFixed(2)}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -201,22 +179,22 @@ export function OrdersPage({ orders }: { orders: OrderType[] }) {
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
                                   <h4 className="font-semibold">Customer</h4>
-                                  <p>{order.totalAmount}</p>
+                                  <p>{order.user.name}</p>
                                   <p className="text-sm text-muted-foreground">
-                                    {order.phone}
+                                    {order.user.email}
                                   </p>
                                 </div>
                                 <div>
                                   <h4 className="font-semibold">Status</h4>
-                                  <Badge variant={getStatusColor(order.status)}>
-                                    {order.status}
+                                  <Badge variant={getStatusColor(order.orderStatus)}>
+                                    {order.orderStatus}
                                   </Badge>
                                 </div>
                               </div>
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
                                   <h4 className="font-semibold">Total</h4>
-                                  <p>${order.totalAmount}</p>
+                                  <p>₹{order.totalAmount.toFixed(2)}</p>
                                 </div>
                                 <div>
                                   <h4 className="font-semibold">Date</h4>
@@ -224,24 +202,58 @@ export function OrdersPage({ orders }: { orders: OrderType[] }) {
                                 </div>
                               </div>
                               <div>
+                                <h4 className="font-semibold mb-2">Order Items</h4>
+                                <div className="space-y-2">
+                                  {order.items.map((item) => (
+                                    <div key={item.id} className="flex justify-between items-center p-2 border rounded">
+                                      <div>
+                                        <p className="font-medium">{item.productName}</p>
+                                        <p className="text-sm text-gray-600">{item.variantName}</p>
+                                        {item.variant?.attributes && typeof item.variant.attributes === 'object' && (
+                                          <div className="flex gap-1 mt-1">
+                                            {Object.entries(item.variant.attributes as Record<string, string>).map(([key, value]) => (
+                                              <span key={key} className="text-xs bg-gray-100 px-1 rounded">
+                                                {key}: {value}
+                                              </span>
+                                            ))}
+                                          </div>
+                                        )}
+                                      </div>
+                                      <div className="text-right">
+                                        <p>Qty: {item.quantity}</p>
+                                        <p className="font-medium">₹{item.price .toFixed(2)}</p>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                              <div>
+                                <h4 className="font-semibold mb-2">Shipping Address</h4>
+                                <p className="text-sm">{order.address}</p>
+                                <p className="text-sm">Phone: {order.phone}</p>
+                              </div>
+                              <div>
                                 <h4 className="font-semibold mb-2">
                                   Update Status
                                 </h4>
-                                <Select defaultValue={order.status}>
+                                <Select defaultValue={order.orderStatus}>
                                   <SelectTrigger>
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="pending">
+                                    <SelectItem value="PENDING">
                                       Pending
                                     </SelectItem>
-                                    <SelectItem value="shipped">
+                                    <SelectItem value="PROCESSING">
+                                      Processing
+                                    </SelectItem>
+                                    <SelectItem value="SHIPPED">
                                       Shipped
                                     </SelectItem>
-                                    <SelectItem value="delivered">
+                                    <SelectItem value="DELIVERED">
                                       Delivered
                                     </SelectItem>
-                                    <SelectItem value="cancelled">
+                                    <SelectItem value="CANCELLED">
                                       Cancelled
                                     </SelectItem>
                                   </SelectContent>

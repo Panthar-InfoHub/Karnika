@@ -11,6 +11,9 @@ export interface Customer {
   name: string;
   email: string;
   image?: string;
+  totalOrders?: number;
+  createdAt?: Date;
+  totalSpent?: number;
 }
 
 async function getCustomers(): Promise<Customer[]> {
@@ -22,13 +25,31 @@ async function getCustomers(): Promise<Customer[]> {
       orderBy: {
         createdAt: "desc",
       },
+      include:{
+        _count:{
+          select:{
+            orders:true
+
+          }
+
+        },
+        orders:{
+          select:{
+            totalAmount:true,
+          }
+        }
+      },
     });
+
 
     return users.map((user) => ({
       id: user.id,
       name: user.name,
       email: user.email,
       image: user?.image || undefined,
+      totalOrders: user._count.orders || 0,
+      createdAt: user.createdAt || undefined,
+      totalSpent:user.orders.reduce((total, order) => total + (order.totalAmount || 0), 0),
     }));
   } catch (error) {
     console.error("Error fetching customers:", error);
