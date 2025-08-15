@@ -1,5 +1,5 @@
-import { OrdersLoading } from "@/app/admin/orders/page";
 import { OrdersPage } from "@/components/dashboard/orders-page";
+import PageSkeleton from "@/components/dashboard/PageSkeleton";
 import SignOut from "@/components/sign-out";
 import { prisma } from "@/prisma/db";
 import { getSession } from "@/utils/auth-utils";
@@ -22,7 +22,7 @@ async function AccountPage() {
 
 export default function Orders() {
   return (
-    <Suspense fallback={<OrdersLoading />}>
+    <Suspense fallback={<PageSkeleton />}>
       <AccountPage />
     </Suspense>
   );

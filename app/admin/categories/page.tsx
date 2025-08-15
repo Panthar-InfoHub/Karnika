@@ -7,32 +7,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Suspense } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 import CategoriesTable from "@/components/dashboard/categories-table";
 import PageSkeleton from "@/components/dashboard/PageSkeleton";
-
-async function getCategoriesData() {
-  try {
-    const categories = await prisma.category.findMany({
-      include: {
-        _count: {
-          select: {
-            products: true,
-          },
-        },
-      },
-      orderBy: {
-        name: "asc",
-      },
-    });
-
-    return { categories };
-  } catch (error) {
-    console.error("Failed to fetch categories:", error);
-    throw new Error("Failed to load categories");
-  }
-}
-
 
 
 export default function CategoriesPage() {
@@ -45,6 +21,30 @@ export default function CategoriesPage() {
 
 
 async function CategoriesContent() {
+
+  async function getCategoriesData() {
+    try {
+      const categories = await prisma.category.findMany({
+        include: {
+          _count: {
+            select: {
+              products: true,
+            },
+          },
+        },
+        orderBy: {
+          name: "asc",
+        },
+      });
+
+      return { categories };
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+      throw new Error("Failed to load categories");
+    }
+  }
+
+
   try {
     const { categories } = await getCategoriesData();
     return <CategoriesTable categories={categories} />;
