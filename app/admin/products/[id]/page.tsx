@@ -76,11 +76,14 @@ async function EditProductContent({ id }: { id: string }) {
   }
 }
 
-export default function EditProductPage({
+export default async function EditProductPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+
+  const { id } = await params;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -95,7 +98,7 @@ export default function EditProductPage({
         </div>
       </div>
 
-      <EditProductContent id={params.id} />
+      <EditProductContent id={id} />
     </div>
   );
 }

@@ -5,15 +5,14 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProductPurchase } from "@/components/home/ProductPurchase";
 
-interface ProductPageProps {
-  params: {
-    slug: string;
-  };
-}
 
-export default async function ProductPage({ params }: ProductPageProps) {
+
+export default async function ProductPage({ params }: {params:Promise<{ slug: string }>}) {
+
+  const { slug } = await params;
+
   const product = await prisma.product.findUnique({
-    where: { slug: params.slug },
+    where: { slug: slug },
     include: {
       variants: {
         orderBy: { isDefault: "desc" },
