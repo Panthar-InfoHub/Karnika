@@ -1,8 +1,8 @@
 import { OrdersPage } from "@/components/dashboard/orders-page";
 import { prisma } from "@/prisma/db";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Suspense } from "react";
 import PageSkeleton from "@/components/dashboard/PageSkeleton";
+import ErrorCard from "@/components/ErrorCard";
 
 async function getOrdersData() {
   try {
@@ -58,27 +58,6 @@ async function OrdersContent() {
     const { orders } = await getOrdersData();
     return <OrdersPage orders={orders} />;
   } catch (error) {
-    return <OrdersError error={error as Error} />;
+    return <ErrorCard error={error as Error} title="Orders" />;
   }
-}
-
-function OrdersError({ error }: { error: Error }) {
-  return (
-    <div className="space-y-4">
-      <h2 className="text-3xl font-bold tracking-tight">Orders</h2>
-      <Card>
-        <CardHeader>
-          <CardTitle>Something went wrong!</CardTitle>
-          <CardDescription className="text-destructive">
-            Failed to load orders: {error.message}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Please try refreshing the page or contact support if the problem persists.
-          </p>
-        </CardContent>
-      </Card>
-    </div>
-  );
 }

@@ -1,16 +1,22 @@
 import { prisma } from "@/prisma/db";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ProductForm } from "@/components/dashboard/product-form";
 import CreateCategory from "@/components/dashboard/category-create";
+import ErrorCard from "@/components/ErrorCard";
+import { Suspense } from "react";
+import PageSkeleton from "@/components/dashboard/PageSkeleton";
+
+
+export default function Page() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <NewProductContent />
+    </Suspense>
+  );
+}
+
 
 async function getCategoriesAndMedia() {
   try {
@@ -38,24 +44,7 @@ async function getCategoriesAndMedia() {
 async function NewProductContent() {
   try {
     const { categories, media } = await getCategoriesAndMedia();
-    return <ProductForm categories={categories} media={media} mode="create" />;
-  } catch (error) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Error</CardTitle>
-          <CardDescription className="text-destructive">
-            {(error as Error).message}
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
-}
-
-export default function NewProductPage() {
-  return (
-    <div className="space-y-6">
+    return (<div className="space-y-6">
       <div className="flex justify-between item-center w-full">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
@@ -74,8 +63,11 @@ export default function NewProductPage() {
         </div>
         <CreateCategory />
       </div>
-
-      <NewProductContent />
-    </div>
-  );
+      <ProductForm categories={categories} media={media} mode="create" />
+    </div>)
+  } catch (error) {
+    return <ErrorCard title="Create Product" error={error as Error} />;
+  }
 }
+
+

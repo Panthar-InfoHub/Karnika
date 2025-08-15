@@ -46,8 +46,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
-        <SidebarFooter className="pb-4">
-          <SignOut/>
+        <SidebarFooter className="pb-4 ">
+          <div className="group-data-[collapsible=icon]:hidden">
+            <SignOut />
+          </div>
+          <div className="group-data-[collapsible=icon]:flex hidden">
+            <SignOut type="icon" />
+          </div>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>

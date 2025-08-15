@@ -1,19 +1,9 @@
 import CustomerTable from "@/components/dashboard/CustomerTable";
 import PageSkeleton from "@/components/dashboard/PageSkeleton";
-import { Button } from "@/components/ui/button";
+import ErrorCard from "@/components/ErrorCard";
 import { prisma } from "@/prisma/db";
+import { Customer } from "@/types/DbType";
 import { Suspense } from "react";
-
-export interface Customer {
-  id: string;
-  name: string;
-  email: string;
-  image?: string;
-  totalOrders?: number;
-  createdAt?: Date;
-  totalSpent?: number;
-}
-
 
 export default async function Customers() {
   return (
@@ -46,8 +36,6 @@ const CustomersContent = async () => {
         }
       },
     });
-
-
     return users.map((user) => ({
       id: user.id,
       name: user.name,
@@ -59,24 +47,18 @@ const CustomersContent = async () => {
     }));
   }
 
-
   let customers: Customer[] = [];
-  let hasError = false;
-
   try {
     customers = await getCustomers();
-  } catch (error) {
-    hasError = true;
-  }
-
-
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Customers</h2>
-        {/* <Button>Export Customers</Button> */}
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-3xl font-bold tracking-tight">Customers</h2>
+        </div>
+        <CustomerTable customers={customers} />
       </div>
-      <CustomerTable customers={customers} hasError={hasError} />
-    </div>
-  );
+    );
+  } catch (error) {
+    return <ErrorCard error={error as Error} title="Customers" />;
+  }
 };

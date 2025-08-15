@@ -19,16 +19,9 @@ import {
 } from "../ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useState } from "react";
-import { Customer } from "@/app/admin/customers/page";
-import { toast } from "sonner";
+import { Customer } from "@/types/DbType";
 
-
-function CustomerTable({ customers, hasError }: { customers: Customer[]; hasError: boolean }) {
-
-
-  if (hasError) {
-    toast.error("Failed to load customers.");
-  }
+function CustomerTable({ customers }: { customers: Customer[] }) {
 
   const [searchTerm, setSearchTerm] = useState("");
 

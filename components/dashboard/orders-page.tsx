@@ -129,7 +129,7 @@ export function OrdersPage({ orders }: { orders: AdminOrderType[] }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredOrders.map((order) => (
+              {filteredOrders.length > 0 ? filteredOrders.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell className="font-medium">{order.id}</TableCell>
                   <TableCell>
@@ -221,7 +221,7 @@ export function OrdersPage({ orders }: { orders: AdminOrderType[] }) {
                                       </div>
                                       <div className="text-right">
                                         <p>Qty: {item.quantity}</p>
-                                        <p className="font-medium">₹{item.price .toFixed(2)}</p>
+                                        <p className="font-medium">₹{item.price.toFixed(2)}</p>
                                       </div>
                                     </div>
                                   ))}
@@ -272,7 +272,11 @@ export function OrdersPage({ orders }: { orders: AdminOrderType[] }) {
                     </DropdownMenu>
                   </TableCell>
                 </TableRow>
-              ))}
+              )) : <TableRow>
+                <TableCell colSpan={7} className="text-center">
+                  No orders found.
+                </TableCell>
+              </TableRow>}
             </TableBody>
           </Table>
         </CardContent>

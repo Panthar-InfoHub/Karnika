@@ -9,21 +9,16 @@ import {
   CartesianGrid,
   Cell,
   LabelList,
-  PolarAngleAxis,
-  RadialBar,
-  RadialBarChart,
   ResponsiveContainer,
-  Tooltip,
   XAxis,
   YAxis,
   PieChart,
   Pie,
 } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { Download, TrendingUp, ShoppingCart, Package, AlertTriangle } from 'lucide-react'
+import {  TrendingUp, ShoppingCart, Package, AlertTriangle } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 
 type TimePeriod = 'today' | '30days' | 'lifetime';
 

@@ -76,3 +76,13 @@ export type CartItem = {
   quantity: number;
   attributes: Record<string, string>;
 };
+
+export interface Customer {
+  id: string;
+  name: string;
+  email: string;
+  image?: string;
+  totalOrders?: number;
+  createdAt?: Date;
+  totalSpent?: number;
+}

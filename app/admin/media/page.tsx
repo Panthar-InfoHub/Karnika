@@ -1,19 +1,10 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Suspense } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { MediaGrid } from "@/components/dashboard/media-grid";
 import { MediaLoading } from "@/components/dashboard/PageSkeleton";
+import ErrorCard from "@/components/ErrorCard";
 
-// Placeholder data fetching - implement actual media storage later
 async function getMediaData() {
   try {
-    // This will be replaced with actual media fetching logic
     const media = [
       {
         id: "1",
@@ -21,7 +12,7 @@ async function getMediaData() {
         name: "product-1.jpg",
         type: "image/jpeg",
         size: 245760,
-        createdAt: new Date(),
+        createdAt: new Date("2023-10-01T12:00:00Z"),
       },
       {
         id: "2",
@@ -29,10 +20,9 @@ async function getMediaData() {
         name: "product-2.jpg",
         type: "image/jpeg",
         size: 189432,
-        createdAt: new Date(),
+        createdAt: new Date("2023-10-02T12:00:00Z"),
       },
     ];
-
     return { media };
   } catch (error) {
     console.error("Failed to fetch media:", error);
@@ -56,28 +46,6 @@ async function MediaContent() {
     const { media } = await getMediaData();
     return <MediaGrid media={media} />;
   } catch (error) {
-    return <MediaError error={error as Error} />;
+    return <ErrorCard error={error as Error} title="Media" />;
   }
-}
-
-function MediaError({ error }: { error: Error }) {
-  return (
-    <div className="space-y-4">
-      <h2 className="text-3xl font-bold tracking-tight">Media</h2>
-      <Card>
-        <CardHeader>
-          <CardTitle>Something went wrong!</CardTitle>
-          <CardDescription className="text-destructive">
-            Failed to load media: {error.message}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Please try refreshing the page or contact support if the problem
-            persists.
-          </p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+} 

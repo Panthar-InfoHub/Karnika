@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, LogOutIcon } from "lucide-react";
 
-const SignOut = ({ className }: { className?: string }) => {
+const SignOut = ({ className, type = "default" }: { className?: string; type?: "default" | "icon" }) => {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
 
@@ -37,7 +37,7 @@ const SignOut = ({ className }: { className?: string }) => {
       className={cn("w-full", className)}
       disabled={isPending}
     >
-      {isPending ? <Loader2 className="animate-spin" /> : <span>Sign Out</span>}
+      {isPending ? <Loader2 className="animate-spin" /> : <span className="flex items-center gap-2"> <LogOutIcon /> {type === "default" && "Sign Out"}</span>}
     </Button>
   );
 };
