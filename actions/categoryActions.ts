@@ -8,24 +8,39 @@ export async function createCategoryAction(formData: FormData) {
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
   const image = formData.get("image") as string;
+  const id = formData.get("id") as string;
 
   const slug = generateSlug(name);
 
   try {
-    await prisma.category.create({
-      data: {
-        name,
-        description,
-        image,
-        slug,
-      },
-    });
+    if (id) {
+      // Edit existing category
+      await prisma.category.update({
+        where: { id },
+        data: {
+          name,
+          description,
+          image,
+          slug,
+        },
+      });
+    } else {
+      // Create new category
+      await prisma.category.create({
+        data: {
+          name,
+          description,
+          image,
+          slug,
+        },
+      });
+    }
     revalidatePath("/admin/categories");
     revalidatePath("/admin/products/new");
 
     return { success: true };
   } catch (error) {
-    return { error: "Failed to create category" };
+    return { error: id ? "Failed to update category" : "Failed to create category" };
   }
 }
 

@@ -9,6 +9,7 @@ import {
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import CategoriesTable from "@/components/dashboard/categories-table";
+import PageSkeleton from "@/components/dashboard/PageSkeleton";
 
 async function getCategoriesData() {
   try {
@@ -32,35 +33,27 @@ async function getCategoriesData() {
   }
 }
 
-function CategoriesLoading() {
+
+
+export default function CategoriesPage() {
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-8 w-32" />
-        <Skeleton className="h-10 w-32" />
-      </div>
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-6 w-48" />
-          <Skeleton className="h-4 w-72" />
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center space-x-4">
-                <Skeleton className="h-10 w-10 rounded" />
-                <Skeleton className="h-4 flex-1" />
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-4 w-16" />
-                <Skeleton className="h-8 w-8" />
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <Suspense fallback={<PageSkeleton />}>
+      <CategoriesContent />
+    </Suspense>
   );
 }
+
+
+async function CategoriesContent() {
+  try {
+    const { categories } = await getCategoriesData();
+    return <CategoriesTable categories={categories} />;
+  } catch (error) {
+    return <CategoriesError error={error as Error} />;
+  }
+}
+
+
 
 function CategoriesError({ error }: { error: Error }) {
   return (
@@ -84,19 +77,3 @@ function CategoriesError({ error }: { error: Error }) {
   );
 }
 
-async function CategoriesContent() {
-  try {
-    const { categories } = await getCategoriesData();
-    return <CategoriesTable categories={categories} />;
-  } catch (error) {
-    return <CategoriesError error={error as Error} />;
-  }
-}
-
-export default function CategoriesPage() {
-  return (
-    <Suspense fallback={<CategoriesLoading />}>
-      <CategoriesContent />
-    </Suspense>
-  );
-}

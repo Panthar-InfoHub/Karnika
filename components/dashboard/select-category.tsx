@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Category } from "@/prisma/generated/prisma";
-import CreateCategory from "./create-category";
+import CreateCategory from "./category-create";
 import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
 
@@ -61,14 +61,6 @@ export function SelectCategory({
             No Categories Found
           </div>
         )}
-        {/* {showAddButton && (
-          <CreateCategory trigger={
-            <div className="w-full flex gap-2 items-center justify-center border-t p-1 cursor-pointer hover:bg-muted-foreground/10 hover:text-primary">
-              <Plus className="mr-2 h-4 w-4" />
-              Add New
-            </div>
-          }/>
-        )} */}
       </SelectContent>
     </Select>
   );

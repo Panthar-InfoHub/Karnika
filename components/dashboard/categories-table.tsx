@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Edit, MoreHorizontal, Search, Trash2 } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import CreateCategory from "./create-category";
+import CreateCategory from "./category-create";
 import { deleteCategoryAction } from "@/actions/categoryActions";
 import { toast } from "sonner";
 
@@ -44,33 +44,30 @@ interface CategoryWithCount {
   };
 }
 
-interface CategoriesTableProps {
-  categories: CategoryWithCount[];
-}
-
-export default function CategoriesTable({ categories }: CategoriesTableProps) {
+export default function CategoriesTable({ categories }: { categories: CategoryWithCount[] }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteCategory, setDeleteCategory] = useState<CategoryWithCount | null>(null);
-  const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [editCategory, setEditCategory] = useState<CategoryWithCount | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const filteredCategories = useMemo(() => {
-    return categories.filter((category) =>
+  const filteredCategories = useMemo(() =>
+    categories.filter(category =>
       category.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [categories, searchTerm]);
+    ), [categories, searchTerm]
+  );
 
-  const handleDeleteCategory = async (category: CategoryWithCount) => {
-    setIsDeleting(category.id);
+  const handleDelete = async () => {
+    if (!deleteCategory) return;
+
+    setIsDeleting(true);
     try {
-      const resp = await deleteCategoryAction(category.id);
-
-      if (resp?.error) {
-        throw new Error(resp.error);
-      }
+      const resp = await deleteCategoryAction(deleteCategory.id);
+      if (resp?.error) throw new Error(resp.error);
+      toast.success("Category deleted successfully");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to delete category");
     } finally {
-      setIsDeleting(null);
+      setIsDeleting(false);
       setDeleteCategory(null);
     }
   };
@@ -84,16 +81,14 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
       </div>
 
       {/* Search */}
-      <div className="flex items-center space-x-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search categories..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-8"
-          />
-        </div>
+      <div className="relative max-w-sm">
+        <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Search categories..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-8"
+        />
       </div>
 
       {/* Categories Table */}
@@ -126,18 +121,14 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                         className="h-10 w-10 rounded object-cover"
                       />
                     </TableCell>
-                    <TableCell className="font-medium">
-                      {category.name}
-                    </TableCell>
+                    <TableCell className="font-medium">{category.name}</TableCell>
                     <TableCell className="max-w-xs">
                       <p className="truncate">
                         {category.description || "No description available."}
                       </p>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge variant="secondary">
-                        {category._count.products}
-                      </Badge>
+                      <Badge variant="secondary">{category._count.products}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
@@ -148,7 +139,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setEditCategory(category)}>
                             <Edit className="mr-2 h-4 w-4" />
                             Edit
                           </DropdownMenuItem>
@@ -156,12 +147,10 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                           <DropdownMenuItem
                             className="text-destructive"
                             onClick={() => setDeleteCategory(category)}
-                            disabled={isDeleting === category.id}
+                            disabled={isDeleting}
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            {isDeleting === category.id
-                              ? "Deleting..."
-                              : "Delete"}
+                            Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -170,10 +159,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className="text-center text-muted-foreground py-4"
-                  >
+                  <TableCell colSpan={5} className="text-center text-muted-foreground py-4">
                     No categories found
                   </TableCell>
                 </TableRow>
@@ -193,10 +179,19 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
             ? `Cannot delete "${deleteCategory?.name}" because it contains ${deleteCategory?._count.products} products. Please move or delete the products first.`
             : `Are you sure you want to delete "${deleteCategory?.name}"? This action cannot be undone.`
         }
-        onConfirm={() => deleteCategory && handleDeleteCategory(deleteCategory)}
+        onConfirm={handleDelete}
         confirmText="Delete"
-        isLoading={isDeleting === deleteCategory?.id}
+        isLoading={isDeleting}
         variant={deleteCategory?._count.products ? "default" : "destructive"}
+      />
+
+      {/* Edit Category Dialog */}
+      <CreateCategory
+        mode="edit"
+        category={editCategory || undefined}
+        open={!!editCategory}
+        onOpenChange={(open) => !open && setEditCategory(null)}
+        onSuccess={() => setEditCategory(null)}
       />
     </div>
   );

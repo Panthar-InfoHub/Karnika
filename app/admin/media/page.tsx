@@ -8,6 +8,7 @@ import {
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MediaGrid } from "@/components/dashboard/media-grid";
+import { MediaLoading } from "@/components/dashboard/PageSkeleton";
 
 // Placeholder data fetching - implement actual media storage later
 async function getMediaData() {
@@ -39,20 +40,24 @@ async function getMediaData() {
   }
 }
 
-function MediaLoading() {
+
+
+
+export default function MediaPage() {
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-8 w-32" />
-        <Skeleton className="h-10 w-32" />
-      </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <Skeleton key={i} className="aspect-square" />
-        ))}
-      </div>
-    </div>
+    <Suspense fallback={<MediaLoading />}>
+      <MediaContent />
+    </Suspense>
   );
+}
+
+async function MediaContent() {
+  try {
+    const { media } = await getMediaData();
+    return <MediaGrid media={media} />;
+  } catch (error) {
+    return <MediaError error={error as Error} />;
+  }
 }
 
 function MediaError({ error }: { error: Error }) {
@@ -74,23 +79,5 @@ function MediaError({ error }: { error: Error }) {
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-async function MediaContent() {
-  try {
-    const { media } = await getMediaData();
-    // return <FileUploaderTest/>
-    return <MediaGrid media={media} />;
-  } catch (error) {
-    return <MediaError error={error as Error} />;
-  }
-}
-
-export default function MediaPage() {
-  return (
-    <Suspense fallback={<MediaLoading />}>
-      <MediaContent />
-    </Suspense>
   );
 }

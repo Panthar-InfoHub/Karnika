@@ -10,7 +10,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ProductForm } from "@/components/dashboard/product-form";
-import CreateCategory from "@/components/dashboard/create-category";
+import CreateCategory from "@/components/dashboard/category-create";
 
 async function getCategoriesAndMedia() {
   try {
