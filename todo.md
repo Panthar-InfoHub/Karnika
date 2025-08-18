@@ -1,6 +1,6 @@
-- optimise it for the server side and reduce the use of useeffect   
+- optimise it for the server side and reduce the use of use effect   
 - filtering on server side and pagnation on the orders
 - allow order status update
 - send email when order is confirmed
 - google cloud implementation
-- 
+- product form page refactor - with add and update server action

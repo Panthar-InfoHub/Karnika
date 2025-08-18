@@ -9,7 +9,7 @@ const ErrorCard = ({ error, title }: { error: Error, title: string }) => {
                 <CardHeader>
                     <CardTitle>Something went wrong!</CardTitle>
                     <CardDescription className="text-destructive">
-                        Failed to load {title}: {error.message}
+                        Error in {title}: {error.message}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>

@@ -26,7 +26,7 @@ export default async function EditProductPage({
 
 async function getProductData(id: string) {
   try {
-    const [product, categories, media] = await Promise.all([
+    const [product, categories] = await Promise.all([
       prisma.product.findUnique({
         where: { id },
         include: {
@@ -48,14 +48,13 @@ async function getProductData(id: string) {
           name: "asc",
         },
       }),
-      Promise.resolve([]),
     ]);
 
     if (!product) {
       notFound();
     }
 
-    return { product, categories, media };
+    return { product, categories };
   } catch (error) {
     console.error("Failed to fetch product data:", error);
     throw new Error("Failed to load product data");
@@ -64,7 +63,7 @@ async function getProductData(id: string) {
 
 async function EditProductContent({ id }: { id: string }) {
   try {
-    const { product, categories, media } = await getProductData(id);
+    const { product, categories } = await getProductData(id);
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">
@@ -81,7 +80,6 @@ async function EditProductContent({ id }: { id: string }) {
         <ProductForm
           product={product}
           categories={categories}
-          media={media}
           mode="edit"
         />
       </div>

@@ -13,15 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Upload, Image as ImageIcon, X, Plus } from "lucide-react";
+import { X } from "lucide-react";
 import { Category } from "@/prisma/generated/prisma";
 import { ProductWithCategory } from "@/types/DbType";
 import { SelectCategory } from "./select-category";
@@ -30,21 +22,18 @@ import {
   updateProductAction,
 } from "@/actions/productAction";
 import { useRouter } from "next/navigation";
-import { MediaSelector } from "./media-selector";
 import ChooseMedia from "./ChooseMedia";
 import { VariantManager } from "./variant-manager";
 
 interface ProductFormProps {
   product?: ProductWithCategory;
   categories: Partial<Category>[];
-  media: any[]; // Define proper media type later
   mode: "create" | "edit";
 }
 
 export function ProductForm({
   product,
   categories,
-  media,
   mode,
 }: ProductFormProps) {
   const router = useRouter();
@@ -194,7 +183,7 @@ export function ProductForm({
         onVariantsChange={setVariants}
         initialVariants={(product?.variants || []).map(variant => ({
           id: variant.id,
-          attributes: typeof variant.attributes === 'object' && variant.attributes 
+          attributes: typeof variant.attributes === 'object' && variant.attributes
             ? variant.attributes as Record<string, string>
             : {},
           variantName: variant.variantName,
@@ -267,8 +256,8 @@ export function ProductForm({
               ? "Creating..."
               : "Updating..."
             : mode === "create"
-            ? "Create Product"
-            : "Update Product"}
+              ? "Create Product"
+              : "Update Product"}
         </Button>
       </div>
     </form>

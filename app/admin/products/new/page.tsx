@@ -18,32 +18,27 @@ export default function Page() {
 }
 
 
-async function getCategoriesAndMedia() {
+async function getCategories() {
   try {
-    const [categories, media] = await Promise.all([
-      prisma.category.findMany({
-        select: {
-          id: true,
-          name: true,
-        },
-        orderBy: {
-          name: "asc",
-        },
-      }),
-      // For now, we'll use a placeholder for media - you can implement this later
-      Promise.resolve([]),
-    ]);
+    const categories = await prisma.category.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    })
 
-    return { categories, media };
+    return { categories };
   } catch (error) {
-    console.error("Failed to fetch data:", error);
-    throw new Error("Failed to load form data");
+    throw new Error("Failed to load categories");
   }
 }
 
 async function NewProductContent() {
   try {
-    const { categories, media } = await getCategoriesAndMedia();
+    const { categories } = await getCategories();
     return (<div className="space-y-6">
       <div className="flex justify-between item-center w-full">
         <div className="flex items-center gap-4">
@@ -63,7 +58,7 @@ async function NewProductContent() {
         </div>
         <CreateCategory />
       </div>
-      <ProductForm categories={categories} media={media} mode="create" />
+      <ProductForm categories={categories} mode="create" />
     </div>)
   } catch (error) {
     return <ErrorCard title="Create Product" error={error as Error} />;
