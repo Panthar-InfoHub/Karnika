@@ -1,4 +1,6 @@
 - optimise it for the server side and reduce the use of useeffect   
 - filtering on server side and pagnation on the orders
-- invoice 
-- edit category 
+- allow order status update
+- send email when order is confirmed
+- google cloud implementation
+- 

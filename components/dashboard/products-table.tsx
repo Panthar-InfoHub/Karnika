@@ -34,6 +34,7 @@ import { SelectCategory } from "./select-category";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { deleteProductAction } from "@/actions/productAction";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export function ProductsTable({
   products,
@@ -50,7 +51,7 @@ export function ProductsTable({
     React.useState<ProductWithCategory | null>(null);
   const [isDeleting, setIsDeleting] = React.useState<string | null>(null);
 
-  // Server-side filtering is better, but keeping client-side for real-time search UX
+  // Server-side filtering is better, but keeping client-side for simplicity
   const filteredProducts = React.useMemo(() => {
     return products.filter((product) => {
       const matchesSearch = product.name
@@ -67,8 +68,13 @@ export function ProductsTable({
 
     console.log("Deleting product:", product.id);
     try {
-      await deleteProductAction(product.id);
+      const resp = await deleteProductAction(product.id);
+      if (resp?.error) {
+        throw new Error(resp.error);
+      }
+      toast.success("Product deleted successfully");
     } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to delete product");
       console.error("Failed to delete product:", error);
     } finally {
       setIsDeleting(null);

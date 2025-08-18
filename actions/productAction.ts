@@ -37,7 +37,7 @@ export async function createProductAction(formData: FormData) {
       images.push(value);
     }
   }
-  
+
   const parsed = ProductCreateSchema.safeParse({
     ...rawObject,
     images,
@@ -67,9 +67,10 @@ export async function createProductAction(formData: FormData) {
     }
 
     // Calculate total stock
-    const totalStock = variantsData.length > 0 
-      ? variantsData.reduce((sum, variant) => sum + (variant.stock || 0), 0)
-      : parsed.data.stock;
+    const totalStock =
+      variantsData.length > 0
+        ? variantsData.reduce((sum, variant) => sum + (variant.stock || 0), 0)
+        : parsed.data.stock;
 
     // Create product
     const product = await prisma.product.create({
@@ -159,9 +160,10 @@ export async function updateProductAction(formData: FormData) {
     }
 
     // Calculate total stock
-    const totalStock = variantsData.length > 0 
-      ? variantsData.reduce((sum, variant) => sum + (variant.stock || 0), 0)
-      : parsed.data.stock;
+    const totalStock =
+      variantsData.length > 0
+        ? variantsData.reduce((sum, variant) => sum + (variant.stock || 0), 0)
+        : parsed.data.stock;
 
     // Update product
     await prisma.product.update({
@@ -230,19 +232,18 @@ export async function updateProductAction(formData: FormData) {
 
 export async function deleteProductAction(productId: string) {
   try {
-    // Delete variants first (cascade should handle this, but being explicit)
-    await prisma.productVariant.deleteMany({
-      where: { productId },
-    });
-    
-    // Delete product
-    await prisma.product.delete({
-      where: { id: productId },
-    });
-    
+    await prisma.$transaction([
+      prisma.productVariant.deleteMany({
+        where: { productId },
+      }),
+      prisma.product.delete({
+        where: { id: productId },
+      }),
+    ]);
+
     revalidatePath("/admin/products");
   } catch (e) {
     console.error("Failed to delete product:", e);
-    throw new Error("Failed to delete product");
+    return { error: "Failed to delete product" };
   }
 }
