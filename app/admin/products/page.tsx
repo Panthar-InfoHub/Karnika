@@ -1,4 +1,4 @@
-import { ProductsTable } from "@/components/dashboard/products-table"
+import { ProductsTable } from "@/components/dashboard/products/products-table"
 import { prisma } from "@/prisma/db";
 import { Suspense } from "react";
 import PageSkeleton from "@/components/dashboard/PageSkeleton";

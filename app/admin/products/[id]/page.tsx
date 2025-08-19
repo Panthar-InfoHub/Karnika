@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
-import { ProductForm } from "@/components/dashboard/product-form";
+import { ProductForm } from "@/components/dashboard/products/product-form";
 import ErrorCard from "@/components/ErrorCard";
 import { Suspense } from "react";
 import PageSkeleton from "@/components/dashboard/PageSkeleton";

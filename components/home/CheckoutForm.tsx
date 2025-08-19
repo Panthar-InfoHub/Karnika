@@ -78,7 +78,7 @@ export default function CheckoutForm() {
     // Validate form using Zod
     const validation = checkoutSchema.safeParse(formData);
     if (!validation.success) {
-      toast.error(validation.error.message);
+      toast.error("Invalid form data");
       return;
     }
 
