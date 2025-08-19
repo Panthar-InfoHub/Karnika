@@ -16,14 +16,16 @@ import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import { Category } from "@/prisma/generated/prisma";
 import { ProductWithCategory } from "@/types/DbType";
-import { SelectCategory } from "./select-category";
+
 import {
   createProductAction,
   updateProductAction,
 } from "@/actions/productAction";
 import { useRouter } from "next/navigation";
-import ChooseMedia from "./ChooseMedia";
-import { VariantManager } from "./variant-manager";
+import { SelectCategory } from "@/components/dashboard/category/select-category";
+import { VariantManager } from "@/components/dashboard/products/variant-manager";
+import ChooseMedia from "@/components/dashboard/products/ChooseMedia";
+
 
 interface ProductFormProps {
   product?: ProductWithCategory;

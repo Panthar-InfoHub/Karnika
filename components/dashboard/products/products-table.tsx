@@ -30,7 +30,7 @@ import {
 import { Edit, MoreHorizontal, Plus, Search, Trash2 } from "lucide-react";
 import { Category } from "@/prisma/generated/prisma";
 import { ProductWithCategory } from "@/types/DbType";
-import { SelectCategory } from "./select-category";
+import { SelectCategory } from "@/components/dashboard/category/select-category";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { deleteProductAction } from "@/actions/productAction";
 import Link from "next/link";
