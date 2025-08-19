@@ -20,9 +20,10 @@ interface ProductPurchaseSectionProps {
         images: string[];
         variants: ProductVariant[];
     };
+    onVariantChange?: (variant: ProductVariant) => void;
 }
 
-export function ProductPurchaseSection({ product }: ProductPurchaseSectionProps) {
+export function ProductPurchaseSection({ product, onVariantChange }: ProductPurchaseSectionProps) {
     const { addItem } = useCart();
 
     // Get default variant or first variant
@@ -109,6 +110,9 @@ export function ProductPurchaseSection({ product }: ProductPurchaseSectionProps)
 
         setSelectedAttributes(attributes);
         setSelectedVariant(variant);
+        
+        // Notify parent component about variant change
+        onVariantChange?.(variant);
     };
 
     // Update selected variant when attributes change
@@ -116,8 +120,15 @@ export function ProductPurchaseSection({ product }: ProductPurchaseSectionProps)
         const variant = findVariantByAttributes(selectedAttributes);
         if (variant && variant.id !== selectedVariant.id) {
             setSelectedVariant(variant);
+            // Notify parent component about variant change
+            onVariantChange?.(variant);
         }
-    }, [selectedAttributes]);
+    }, [selectedAttributes, onVariantChange]);
+
+    // Also notify parent when default variant is set initially
+    useEffect(() => {
+        onVariantChange?.(selectedVariant);
+    }, []);
 
     const attributeKeys = getAttributeKeys();
 

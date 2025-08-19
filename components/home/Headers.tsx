@@ -53,9 +53,38 @@ export const Banner = () => {
 const Header = () => {
   const { openCart, itemCount } = useCart();
   const { data: session, isPending } = useSession();
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Show header when at top of page
+      if (currentScrollY < 10) {
+        setIsVisible(true);
+      }
+      // Hide header when scrolling down, show when scrolling up
+      else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsVisible(false);
+      } else if (currentScrollY < lastScrollY) {
+        setIsVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [lastScrollY]);
 
   return (
-    <header className={`w-full sticky top-0 left-0 right-0 z-[9999] transition-all duration-300 `}>
+    <header className={`w-full sticky top-0 left-0 right-0 z-50 transition-transform duration-300 ${
+      isVisible ? 'translate-y-0' : '-translate-y-[105%]'
+    }`}>
       {/* Main Header */}
       <div className="bg-background text-foreground border-b shadow-sm">
         <div className="container mx-auto px-4 py-4">

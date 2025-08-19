@@ -12,10 +12,10 @@ export default function HomeLayout({
   return (
     <UnThemeProvider>
       <CartProvider>
-        <div className="w-full min-h-screen relative flex flex-col light">
+        <div className="w-full min-h-screen relative flex flex-col">
           <Header />
           <Banner/>
-          <main className="flex-1 w-full relative ">{children}</main>
+          <main className="flex-1 w-full relative">{children}</main>
           <Footer />
           <Cart />
         </div>

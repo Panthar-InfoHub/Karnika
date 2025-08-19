@@ -2,7 +2,7 @@ import { prisma } from "@/prisma/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ProductImageGallery } from "@/components/home/ProductImageGallery";
-import { ProductPurchaseSection } from "@/components/home/ProductPurchaseSection";
+import { ProductDetails } from "@/components/home/ProductDetails";
 
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -40,8 +40,6 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     }))
   };
 
-  const defaultVariant = product.variants.find(v => v.isDefault) || product.variants[0];
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-6">
@@ -72,43 +70,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           </div>
 
           {/* Product Details */}
-          <div className="p-8">
-            <div className="mb-6">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
-              <div className="text-sm text-gray-500 mb-4">
-                SKU: {product.id.slice(0, 8).toUpperCase()}
-              </div>
-
-              {/* Star Rating */}
-              <div className="flex items-center mb-4">
-                <div className="flex text-yellow-400">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <span key={i} className="text-lg">⭐</span>
-                  ))}
-                </div>
-                <span className="ml-2 text-sm text-gray-600">45 reviews</span>
-              </div>
-
-              {/* Price */}
-              <div className="mb-6">
-                <div className="text-3xl font-bold text-orange-600 mb-2">
-                  ₹ {defaultVariant?.price}
-                </div>
-                <p className="text-sm text-gray-600">*Inclusive of all taxes</p>
-              </div>
-            </div>
-
-            {/* Product Description */}
-            {product.description && (
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">PRODUCT DESCRIPTION</h3>
-                <p className="text-gray-600 leading-relaxed">{product.description}</p>
-              </div>
-            )}
-
-            {/* Purchase Section */}
-            <ProductPurchaseSection product={serializedProduct} />
-          </div>
+          <ProductDetails product={serializedProduct} />
         </div>
       </div>
     </div>

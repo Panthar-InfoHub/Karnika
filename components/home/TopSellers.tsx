@@ -43,8 +43,32 @@ const TopSellers = async () => {
   }));
 
   return (
-    <section className="py-16 ">
-      <div className="container mx-auto px-4">
+    <section className="p-16 relative overflow-hidden w-full">
+      {/* Left Border Pattern - extends to very edge */}
+      <div 
+        className="absolute left-0 top-0 bottom-0 w-16 z-0"
+        style={{
+          backgroundImage: "url('/traditional-border.svg')",
+          backgroundSize: "60px auto",
+          backgroundRepeat: "repeat-y",
+          backgroundPosition: "0 0",
+        }}
+      ></div>
+      
+      {/* Right Border Pattern - extends to very edge */}
+      <div 
+        className="absolute right-0 top-0 bottom-0 w-16 z-0"
+        style={{
+          backgroundImage: "url('/traditional-border.svg')",
+          backgroundSize: "60px auto", 
+          backgroundRepeat: "repeat-y",
+          backgroundPosition: "0 0",
+          transform: "scaleX(-1)"
+        }}
+      ></div>
+
+      {/* Content with proper margins to avoid overlap with borders */}
+      <div className="relative z-10 mx-auto" style={{ maxWidth: 'calc(100% - 160px)', margin: '0 80px' }}>
         <h2 className="text-4xl font-bold text-center text-farm-navy mb-12 animate-fade-in">
           Top Sellers
         </h2>
