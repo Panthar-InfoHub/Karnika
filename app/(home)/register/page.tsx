@@ -41,7 +41,6 @@ export default function SignUp() {
           setLoading(true);
         },
         onError: (ctx) => {
-          console.log(ctx.error);
           toast.error(ctx.error.message);
         },
         onSuccess: async () => {

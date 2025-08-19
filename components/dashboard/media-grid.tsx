@@ -59,7 +59,6 @@ export function MediaGrid({ media }: MediaGridProps) {
   const handleDelete = async (item: MediaItem) => {
     setIsDeleting(item.id);
     try {
-      console.log("Deleting media:", item.id);
       toast.success(`Deleted ${item.name}`);
     } catch (error) {
       console.error("Failed to delete media:", error);

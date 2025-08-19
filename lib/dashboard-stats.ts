@@ -236,24 +236,41 @@ async function getMonthlyData(startDate: Date) {
     }
   });
 
-  // Group by month
+  // Group by month-year
   const grouped = orders.reduce((acc, order) => {
     if (order.paymentCapturedAt) {
-      const monthKey = `${order.paymentCapturedAt.getFullYear()}-${order.paymentCapturedAt.getMonth()}`;
+      const year = order.paymentCapturedAt.getFullYear();
+      const month = order.paymentCapturedAt.getMonth();
+      const monthKey = `${year}-${String(month).padStart(2, '0')}`;
+      
       if (!acc[monthKey]) {
-        acc[monthKey] = { revenue: 0, orders: 0, date: order.paymentCapturedAt };
+        acc[monthKey] = { 
+          revenue: 0, 
+          orders: 0, 
+          year,
+          month,
+          date: new Date(year, month, 1)
+        };
       }
       acc[monthKey].revenue += order.totalAmount;
       acc[monthKey].orders += 1;
     }
     return acc;
-  }, {} as Record<string, { revenue: number; orders: number; date: Date }>);
+  }, {} as Record<string, { revenue: number; orders: number; year: number; month: number; date: Date }>);
 
-  return Object.values(grouped).map(data => ({
-    date: data.date.toLocaleDateString('en', { month: 'short', year: 'numeric' }),
-    revenue: data.revenue,
-    orders: data.orders
-  }));
+  // If no orders found, return empty array
+  if (Object.keys(grouped).length === 0) {
+    return [];
+  }
+
+  // Sort by date and format for display
+  return Object.values(grouped)
+    .sort((a, b) => a.date.getTime() - b.date.getTime())
+    .map(data => ({
+      date: data.date.toLocaleDateString('en', { month: 'short', year: 'numeric' }),
+      revenue: data.revenue,
+      orders: data.orders
+    }));
 }
 
 async function getOrderStatusData(startDate: Date, endDate: Date) {

@@ -66,7 +66,6 @@ export function ProductsTable({
   const handleDeleteProduct = async (product: ProductWithCategory) => {
     setIsDeleting(product.id);
 
-    console.log("Deleting product:", product.id);
     try {
       const resp = await deleteProductAction(product.id);
       if (resp?.error) {

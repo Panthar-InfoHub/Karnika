@@ -38,7 +38,6 @@ export async function POST(req: NextRequest) {
     const event = webhookData.event;
     const payment = webhookData.payload.payment.entity;
 
-    console.log(`Received webhook event: ${event}`);
 
     // Handle payment.captured event
     if (event === "payment.captured") {
@@ -53,7 +52,6 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      console.log(`Payment captured for order: ${payment.order_id}`);
     }
 
     // Handle payment.failed event
@@ -69,7 +67,6 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      console.log(`Payment failed for order: ${payment.order_id}`);
     }
 
     return NextResponse.json({ status: "ok" });

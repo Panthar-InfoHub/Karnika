@@ -22,7 +22,6 @@ export async function CreateOrder(
 ) {
   if (orderItems.length === 0) throw new Error("Cart is empty");
 
-  console.log("Placing order with items:", orderItems);
 
   // Validate stock availability for all items
   for (const item of orderItems) {

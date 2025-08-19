@@ -40,17 +40,21 @@ const aboutLinks = [
   { name: "Quality Standards", href: "#quality" },
 ];
 
+
+export const Banner = () => {
+  return (
+    <div className="bg-[#043955] text-white py-2 text-center text-sm">
+      Free Shipping over ₹1499 / -
+    </div>
+  )
+}
+
 const Header = () => {
   const { openCart, itemCount } = useCart();
   const { data: session, isPending } = useSession();
 
   return (
     <header className="w-full top-0 sticky z-50">
-      {/* Free Shipping Banner */}
-      <div className="bg-indigo-800 text-white py-2 text-center text-sm">
-        Free Shipping over ₹1499/-
-      </div>
-
       {/* Main Header */}
       <div className="bg-background text-foreground border-b shadow-sm">
         <div className="container mx-auto px-4 py-4">
@@ -62,7 +66,7 @@ const Header = () => {
 
             {/* Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
-              <a    
+              <a
                 href="/"
                 className="text-farm-navy font-medium hover:text-farm-orange transition-colors"
               >

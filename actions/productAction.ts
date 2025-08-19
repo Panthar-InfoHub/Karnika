@@ -45,10 +45,7 @@ export async function createProductAction(formData: FormData) {
   });
 
   if (!parsed.success) {
-    console.log(
-      parsed.error.flatten().fieldErrors,
-      "Failed to parse product data"
-    );
+
     throw new Error("Invalid product data");
   }
 
@@ -114,7 +111,6 @@ export async function createProductAction(formData: FormData) {
     revalidatePath("/admin/products");
   } catch (e) {
     if (e instanceof PrismaClientKnownRequestError) {
-      console.log(e.message);
       throw new Error("Failed to create product - database error");
     }
     throw new Error("Failed to create product");
@@ -138,10 +134,7 @@ export async function updateProductAction(formData: FormData) {
   });
 
   if (!parsed.success) {
-    console.log(
-      parsed.error.flatten().fieldErrors,
-      "Failed to parse product data"
-    );
+
     throw new Error("Invalid product data");
   }
 
@@ -223,7 +216,6 @@ export async function updateProductAction(formData: FormData) {
     revalidatePath("/admin/products");
   } catch (e) {
     if (e instanceof PrismaClientKnownRequestError) {
-      console.log(e.message);
       throw new Error("Failed to update product - database error");
     }
     throw new Error("Failed to update product");
