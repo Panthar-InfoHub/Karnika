@@ -1,6 +1,6 @@
 import { prisma } from "@/prisma/db";
 import { Suspense } from "react";
-import CategoriesTable from "@/components/dashboard/category-table";
+import CategoriesTable from "@/components/dashboard/category/category-table";
 import PageSkeleton from "@/components/dashboard/PageSkeleton";
 import ErrorCard from "@/components/ErrorCard";
 

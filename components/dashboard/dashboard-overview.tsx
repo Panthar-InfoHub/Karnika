@@ -120,7 +120,7 @@ function RevenueChart({ data, loading, period }: { data: any[], loading: boolean
       
       {data.length > 0 ? (
         <ChartContainer
-          className="w-full h-[200px]"
+          className="w-full h-[220px]"
           config={{
             revenue: { label: "Revenue", color: "var(--chart-1)" },
             orders: { label: "Orders", color: "var(--chart-2)" },
@@ -151,7 +151,7 @@ function RevenueChart({ data, loading, period }: { data: any[], loading: boolean
               tickLine={false}
               axisLine={false}
             />
-            <YAxis yAxisId="right" orientation="right" tickLine={false} axisLine={false} />
+            <YAxis yAxisId="right" orientation="right"  tickLine={false} axisLine={false} />
             <ChartTooltip 
               content={<ChartTooltipContent indicator="line" />}
               labelFormatter={(value) => {

@@ -5,9 +5,9 @@ import {
   DialogTrigger,
   DialogHeader,
   DialogContent,
-} from "../ui/dialog";
-import { Button } from "../ui/button";
-import FileUploader from "./FileUploader";
+} from "../../ui/dialog";
+import { Button } from "../../ui/button";
+import FileUploader from "../FileUploader";
 
 const ChooseMedia = ({
   setSelectedUrls,

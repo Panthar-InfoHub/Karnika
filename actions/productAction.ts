@@ -4,7 +4,7 @@ import { z, ZodError } from "zod";
 import { prisma } from "@/prisma/db";
 import { revalidatePath } from "next/cache";
 import { PrismaClientKnownRequestError } from "@/prisma/generated/prisma/runtime/library";
-import { generateSlug } from "@/lib/utils";
+import { generateSlug } from "@/lib/generateSlug";
 
 const ProductCreateSchema = z.object({
   name: z.string().min(1),

@@ -1,6 +1,7 @@
 "use server";
 
-import { generateSlug } from "@/lib/utils";
+
+import { generateSlug } from "@/lib/generateSlug";
 import { prisma } from "@/prisma/db";
 import { revalidatePath } from "next/cache";
 

@@ -22,7 +22,6 @@ export async function CreateOrder(
 ) {
   if (orderItems.length === 0) throw new Error("Cart is empty");
 
-
   // Validate stock availability for all items
   for (const item of orderItems) {
     const variant = await prisma.productVariant.findUnique({
@@ -188,25 +187,52 @@ export async function getAllOrders() {
   }
 }
 
-// export async function updateOrderStatus(orderId: string, status: "PENDING" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED") {
-//   try {
-//     const order = await prisma.order.update({
-//       where: { id: orderId },
-//       data: { status },
-//       include: {
-//         items: {
-//           include: {
-//             product: true,
-//             variant: true
-//           }
-//         }
-//       }
-//     });
+export async function updateOrderStatus(
+  orderId: string,
+  status:
+    | "PENDING"
+    | "CONFIRMED"
+    | "PACKED"
+    | "SHIPPED"
+    | "DELIVERED"
+    | "CANCELLED"
+) {
+  try {
+    const order = await prisma.order.update({
+      where: { id: orderId },
+      data: { orderStatus: status },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        items: {
+          include: {
+            product: {
+              select: {
+                name: true,
+                images: true,
+                slug: true,
+              },
+            },
+            variant: {
+              select: {
+                variantName: true,
+                attributes: true,
+              },
+            },
+          },
+        },
+      },
+    });
 
-//     revalidatePath("/admin/orders");
-//     return order;
-//   } catch (error) {
-//     console.error("Error updating order status:", error);
-//     throw new Error("Failed to update order status");
-//   }
-// }
+    revalidatePath("/admin/orders");
+    return { success: true, order };
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    return { success: false, error: "Failed to update order status" };
+  }
+}

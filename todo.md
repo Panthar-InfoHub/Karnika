@@ -1,6 +1,6 @@
-- optimise it for the server side and reduce the use of use effect   
-- filtering on server side and pagnation on the orders
-- allow order status update
-- send email when order is confirmed
-- google cloud implementation
+- pasword change  and create if user logged in using google
+- adress and phone save for user and prefill automatically during checkout
+- send email when order is confirmed - both admin and the user
+- google cloud implementation for images
+- settings page for admin - like banner 
 - product form page refactor - with add and update server action

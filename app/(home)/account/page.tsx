@@ -1,50 +1,21 @@
-import { OrdersPage } from "@/components/dashboard/orders-page";
-import PageSkeleton from "@/components/dashboard/PageSkeleton";
-import SignOut from "@/components/sign-out";
+import AccountLayout from "@/components/account/AccountLayout";
 import { prisma } from "@/prisma/db";
 import { getSession } from "@/utils/auth-utils";
-import React, { Suspense } from "react";
-
-async function AccountPage() {
-
-  const { orders } = await getOrdersData();
-
-  return (
-    <div className="w-full flex-col gap-3 h-full flex justify-center items-center ">
-      <h1>Only for the Customers</h1>
-      <SignOut className="max-w-xs mx-auto" />
-      <OrdersPage orders={orders} />
-
-    </div>
-  );
-};
-
-
-export default function Orders() {
-  return (
-    <Suspense fallback={<PageSkeleton />}>
-      <AccountPage />
-    </Suspense>
-  );
-}
-
+import { redirect } from "next/navigation";
 
 async function getOrdersData() {
-
   const session = await getSession();
+
+  if (!session) {
+    return { orders: [] };
+  }
 
   try {
     const orders = await prisma.order.findMany({
       where: {
-        userId: session?.user.id
+        userId: session.user.id
       },
       include: {
-        user: {
-          select: {
-            name: true,
-            email: true,
-          }
-        },
         items: {
           include: {
             product: {
@@ -70,8 +41,20 @@ async function getOrdersData() {
     return { orders };
   } catch (error) {
     console.error('Failed to fetch orders:', error);
-    throw new Error('Failed to load orders');
+    return { orders: [] };
   }
+}
+
+export default async function AccountPage() {
+  const session = await getSession();
+  
+  if (!session) {
+    redirect("/login");
+  }
+
+  const { orders } = await getOrdersData();
+
+  return <AccountLayout orders={orders} user={session.user} />;
 }
 
 
