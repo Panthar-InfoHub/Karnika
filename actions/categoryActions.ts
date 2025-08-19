@@ -37,6 +37,8 @@ export async function createCategoryAction(formData: FormData) {
     }
     revalidatePath("/admin/categories");
     revalidatePath("/admin/products/new");
+    revalidatePath("/categories");
+    revalidatePath("/");
 
     return { success: true };
   } catch (error) {
@@ -50,7 +52,52 @@ export async function deleteCategoryAction(categoryId: string) {
       where: { id: categoryId },
     });
     revalidatePath("/admin/categories");
+    revalidatePath("/categories");
+    revalidatePath("/");
   } catch (error) {
     return { error: "Failed to delete category" };
+  }
+}
+
+export async function getAllCategories() {
+  try {
+    const categories = await prisma.category.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return categories;
+  } catch (error) {
+    console.error("Failed to fetch categories:", error);
+    return [];
+  }
+}
+
+export async function getCategoryBySlug(slug: string) {
+  try {
+    const category = await prisma.category.findUnique({
+      where: {
+        slug,
+      },
+      include: {
+        products: {
+          include: {
+            category: true,
+            variants: {
+              where: {
+                isDefault: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+      },
+    });
+    return category;
+  } catch (error) {
+    console.error("Failed to fetch category:", error);
+    return null;
   }
 }

@@ -8,6 +8,11 @@
   }
   body {
     @apply bg-background text-foreground scroll-smooth ;
+    overflow-x: hidden;
+  }
+  
+  html {
+    scroll-behavior: smooth;
   }
 
   a {
@@ -16,6 +21,15 @@
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
+  }
+}
+
+@layer utilities {
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
   }
 }
 

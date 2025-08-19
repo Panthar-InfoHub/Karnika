@@ -16,6 +16,7 @@ import {
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
+import { useEffect, useState } from "react";
 
 const categories = [
   { name: "Dairy Products", href: "#dairy" },
@@ -54,7 +55,7 @@ const Header = () => {
   const { data: session, isPending } = useSession();
 
   return (
-    <header className="w-full top-0 sticky z-50">
+    <header className={`w-full sticky top-0 left-0 right-0 z-[9999] transition-all duration-300 `}>
       {/* Main Header */}
       <div className="bg-background text-foreground border-b shadow-sm">
         <div className="container mx-auto px-4 py-4">
