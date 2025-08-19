@@ -49,6 +49,8 @@ async function getProductsData() {
 async function ProductsContent() {
   try {
     const { products, categories } = await getProductsData()
+    console.log("Products:", products);
+    console.log("Categories:", categories);
     return <ProductsTable products={products} categories={categories} />
   } catch (error) {
     return <ErrorCard title="Products" error={error as Error} />

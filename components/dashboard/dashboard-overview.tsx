@@ -120,73 +120,71 @@ function RevenueChart({ data, loading, period }: { data: any[], loading: boolean
       
       {data.length > 0 ? (
         <ChartContainer
-          className="h-[280px] w-full"
+          className="w-full h-[200px]"
           config={{
             revenue: { label: "Revenue", color: "var(--chart-1)" },
             orders: { label: "Orders", color: "var(--chart-2)" },
           }}
         >
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ left: 8, right: 8 }}>
-              <defs>
-                <linearGradient id="fillRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={"var(--chart-1)"} stopOpacity={0.4} />
-                  <stop offset="95%" stopColor={"var(--chart-1)"} stopOpacity={0.05} />
-                </linearGradient>
-                <linearGradient id="fillOrders" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={"var(--chart-2)"} stopOpacity={0.4} />
-                  <stop offset="95%" stopColor={"var(--chart-2)"} stopOpacity={0.05} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis 
-                dataKey="date" 
-                tickLine={false} 
-                axisLine={false}
-                fontSize={12}
-                interval={period === 'today' ? 2 : 'preserveStart'} // Show every 3rd hour for today
-              />
-              <YAxis
-                yAxisId="left"
-                tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis yAxisId="right" orientation="right" tickLine={false} axisLine={false} />
-              <ChartTooltip 
-                content={<ChartTooltipContent indicator="line" />}
-                labelFormatter={(value) => {
-                  if (period === 'today' && value.includes(':')) {
-                    return `Time: ${value}`;
-                  }
-                  return `Date: ${value}`;
-                }}
-              />
-              <Area
-                yAxisId="left"
-                type="monotone"
-                dataKey="revenue"
-                name="Revenue"
-                stroke={"var(--color-revenue)"}
-                fill="url(#fillRevenue)"
-                strokeWidth={2}
-                dot={false}
-              />
-              <Area
-                yAxisId="right"
-                type="monotone"
-                dataKey="orders"
-                name="Orders"
-                stroke={"var(--color-orders)"}
-                fill="url(#fillOrders)"
-                strokeWidth={2}
-                dot={false}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          <AreaChart width={600} height={200} data={data} margin={{ left: 8, right: 8 }}>
+            <defs>
+              <linearGradient id="fillRevenue" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={"var(--chart-1)"} stopOpacity={0.4} />
+                <stop offset="95%" stopColor={"var(--chart-1)"} stopOpacity={0.05} />
+              </linearGradient>
+              <linearGradient id="fillOrders" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={"var(--chart-2)"} stopOpacity={0.4} />
+                <stop offset="95%" stopColor={"var(--chart-2)"} stopOpacity={0.05} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <XAxis 
+              dataKey="date" 
+              tickLine={false} 
+              axisLine={false}
+              fontSize={12}
+              interval={period === 'today' ? 2 : 'preserveStart'} // Show every 3rd hour for today
+            />
+            <YAxis
+              yAxisId="left"
+              tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
+              tickLine={false}
+              axisLine={false}
+            />
+            <YAxis yAxisId="right" orientation="right" tickLine={false} axisLine={false} />
+            <ChartTooltip 
+              content={<ChartTooltipContent indicator="line" />}
+              labelFormatter={(value) => {
+                if (period === 'today' && value.includes(':')) {
+                  return `Time: ${value}`;
+                }
+                return `Date: ${value}`;
+              }}
+            />
+            <Area
+              yAxisId="left"
+              type="monotone"
+              dataKey="revenue"
+              name="Revenue"
+              stroke={"var(--color-revenue)"}
+              fill="url(#fillRevenue)"
+              strokeWidth={2}
+              dot={false}
+            />
+            <Area
+              yAxisId="right"
+              type="monotone"
+              dataKey="orders"
+              name="Orders"
+              stroke={"var(--color-orders)"}
+              fill="url(#fillOrders)"
+              strokeWidth={2}
+              dot={false}
+            />
+          </AreaChart>
         </ChartContainer>
       ) : (
-        <div className="h-[280px] w-full flex items-center justify-center border rounded-lg bg-muted/20">
+        <div className="w-full flex items-center justify-center border rounded-lg bg-muted/20" style={{ height: '200px' }}>
           <div className="text-center">
             <Package className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground">No revenue data available</p>
@@ -205,7 +203,7 @@ function OrderStatusChart({ data, loading }: { data: any[], loading: boolean }) 
   
   if (data.length === 0) {
     return (
-      <div className="h-[320px] w-full flex items-center justify-center border rounded-lg bg-muted/20">
+      <div className="w-full flex items-center justify-center border rounded-lg bg-muted/20" style={{ height: '280px' }}>
         <div className="text-center">
           <ShoppingCart className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
           <p className="text-sm text-muted-foreground">No orders yet</p>
@@ -217,34 +215,32 @@ function OrderStatusChart({ data, loading }: { data: any[], loading: boolean }) 
   
   return (
     <ChartContainer
-      className="h-[320px] w-full"
+      className="w-full"
       config={{
         count: { label: "Orders", color: "var(--chart-1)" },
       }}
     >
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            outerRadius={80}
-            dataKey="count"
-            nameKey="status"
-            label={({ status, count, percent }) => 
-              count > 0 ? `${status}: ${count}` : ''
-            }
-          >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[entry.status as keyof typeof COLORS] || "#8884d8"} />
-            ))}
-          </Pie>
-          <ChartTooltip 
-            content={<ChartTooltipContent />}
-            formatter={(value, name) => [value, `${name} Orders`]}
-          />
-        </PieChart>
-      </ResponsiveContainer>
+      <PieChart width={280} height={280}>
+        <Pie
+          data={data}
+          cx="50%"
+          cy="50%"
+          outerRadius={70}
+          dataKey="count"
+          nameKey="status"
+          label={({ status, count, percent }) => 
+            count > 0 ? `${status}: ${count}` : ''
+          }
+        >
+          {data.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={COLORS[entry.status as keyof typeof COLORS] || "#8884d8"} />
+          ))}
+        </Pie>
+        <ChartTooltip 
+          content={<ChartTooltipContent />}
+          formatter={(value, name) => [value, `${name} Orders`]}
+        />
+      </PieChart>
     </ChartContainer>
   )
 }
@@ -254,7 +250,7 @@ function TopProductsChart({ data, loading }: { data: any[], loading: boolean }) 
   
   if (data.length === 0) {
     return (
-      <div className="h-[320px] w-full flex items-center justify-center border rounded-lg bg-muted/20">
+      <div className="w-full flex items-center justify-center border rounded-lg bg-muted/20" style={{ height: '280px' }}>
         <div className="text-center">
           <Package className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
           <p className="text-sm text-muted-foreground">No product sales data</p>
@@ -266,44 +262,44 @@ function TopProductsChart({ data, loading }: { data: any[], loading: boolean }) 
   
   return (
     <ChartContainer
-      className="h-[320px] w-full"
+      className="w-full"
       config={{
         revenue: { label: "Revenue", color: "var(--chart-1)" },
       }}
     >
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={data.slice().reverse()}
-          layout="vertical"
-          margin={{ top: 8, left: 8, right: 12, bottom: 8 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
-          <XAxis type="number" axisLine={false} tickLine={false} />
-          <YAxis
-            dataKey="name"
-            type="category"
-            width={140}
-            axisLine={false}
-            tickLine={false}
-            tick={{ fontSize: 12 }}
+      <BarChart
+        width={400}
+        height={280}
+        data={data.slice().reverse()}
+        layout="vertical"
+        margin={{ top: 8, left: 8, right: 12, bottom: 8 }}
+      >
+        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
+        <XAxis type="number" axisLine={false} tickLine={false} />
+        <YAxis
+          dataKey="name"
+          type="category"
+          width={140}
+          axisLine={false}
+          tickLine={false}
+          tick={{ fontSize: 12 }}
+        />
+        <ChartTooltip 
+          content={<ChartTooltipContent indicator="dot" />}
+          formatter={(value, name) => [
+            `₹${value.toLocaleString()}`,
+            name === 'revenue' ? 'Revenue' : name
+          ]}
+        />
+        <Bar dataKey="revenue" radius={[6, 6, 6, 6]} fill={"var(--color-revenue)"} maxBarSize={18}>
+          <LabelList
+            dataKey="revenue"
+            position="right"
+            className="text-xs fill-foreground"
+            formatter={(v: number) => `₹${(v / 1000).toFixed(0)}k`}
           />
-          <ChartTooltip 
-            content={<ChartTooltipContent indicator="dot" />}
-            formatter={(value, name) => [
-              `₹${value.toLocaleString()}`,
-              name === 'revenue' ? 'Revenue' : name
-            ]}
-          />
-          <Bar dataKey="revenue" radius={[6, 6, 6, 6]} fill={"var(--color-revenue)"} maxBarSize={18}>
-            <LabelList
-              dataKey="revenue"
-              position="right"
-              className="text-xs fill-foreground"
-              formatter={(v: number) => `₹${(v / 1000).toFixed(0)}k`}
-            />
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+        </Bar>
+      </BarChart>
     </ChartContainer>
   )
 }

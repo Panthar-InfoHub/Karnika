@@ -8,9 +8,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Category } from "@/prisma/generated/prisma";
-import CreateCategory from "./category-create";
-import { Button } from "../ui/button";
-import { Plus } from "lucide-react";
 
 interface SelectCategoryProps {
   categories: Partial<Category>[];

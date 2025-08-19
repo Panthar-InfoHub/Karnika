@@ -24,12 +24,11 @@ export default function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
-          enableSystem
-          storageKey=""
+          enableSystem={false}
           disableTransitionOnChange
         >
-          <Toaster />
           {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

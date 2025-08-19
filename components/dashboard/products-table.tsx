@@ -133,7 +133,6 @@ export function ProductsTable({
                 <TableHead>Price</TableHead>
                 <TableHead>Stock</TableHead>
                 <TableHead>Category</TableHead>
-                <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -190,9 +189,6 @@ export function ProductsTable({
                     </TableCell>
                     <TableCell>
                       {product.category?.name || "Uncategorized"}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="default">Active</Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>

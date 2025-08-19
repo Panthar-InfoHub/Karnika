@@ -1,7 +1,6 @@
 "use client"
-import React, { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React from "react";
+
 import {
   Carousel,
   CarouselApi,
@@ -10,7 +9,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "../ui/carousel";
-import { Card, CardContent } from "../ui/card";
 import { cn } from "@/lib/utils";
 
 const allCategories = [

@@ -49,14 +49,12 @@ async function getProductData(id: string) {
         },
       }),
     ]);
-
     if (!product) {
       notFound();
     }
 
     return { product, categories };
   } catch (error) {
-    console.error("Failed to fetch product data:", error);
     throw new Error("Failed to load product data");
   }
 }

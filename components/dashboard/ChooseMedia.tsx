@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from "react";
+import React, {  useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -25,6 +25,10 @@ const ChooseMedia = ({
   const [tab, setTab] = useState<"upload" | "existing">("upload");
 
   const handleSelectExisting = (url: string) => {
+    if (selectedUrls.includes(url)) {
+      setSelectedUrls(selectedUrls.filter((item) => item !== url));
+      return;
+    }
     setSelectedUrls([...selectedUrls, url]);
   };
 
@@ -60,7 +64,7 @@ const ChooseMedia = ({
           {tab === "upload" && (
             <FileUploader
               maxFiles={5}
-            //   autoUpload
+              //   autoUpload
               onUploadComplete={(urls: string[]) =>
                 setSelectedUrls([...selectedUrls, ...urls])
               }
@@ -73,9 +77,8 @@ const ChooseMedia = ({
                 existingFiles.map((url) => (
                   <div
                     key={url}
-                    className={`relative cursor-pointer border rounded overflow-hidden ${
-                      selectedUrls.includes(url) ? "ring-2 ring-blue-500" : ""
-                    }`}
+                    className={`relative cursor-pointer border rounded overflow-hidden ${selectedUrls.includes(url) ? "ring-2 ring-blue-500" : ""
+                      }`}
                     onClick={() => handleSelectExisting(url)}
                   >
                     <img
