@@ -154,7 +154,7 @@ const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
               <a
-                href="#"
+                href="/contact"
                 className="text-farm-navy font-medium hover:text-farm-orange transition-colors"
               >
                 Contact Us
