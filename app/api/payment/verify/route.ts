@@ -1,7 +1,11 @@
 import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/prisma/db";
-import { getSession } from "@/utils/auth-utils";
+import { getSession } from "@/lib/auth-utils";
+import {
+  sendOrderConfirmationToUser,
+  sendOrderNotificationToAdmin,
+} from "@/lib/sendMail";
 
 export async function POST(req: Request) {
   try {
@@ -11,16 +15,33 @@ export async function POST(req: Request) {
     }
 
     const { paymentResponse, orderId } = await req.json();
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = paymentResponse;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+      paymentResponse;
 
-    if (!orderId || !razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-      return NextResponse.json({ message: "Missing payment information" }, { status: 400 });
+    if (
+      !orderId ||
+      !razorpay_order_id ||
+      !razorpay_payment_id ||
+      !razorpay_signature
+    ) {
+      return NextResponse.json(
+        { message: "Missing payment information" },
+        { status: 400 }
+      );
     }
 
     // Verify the order exists and belongs to user
     const order = await prisma.order.findUnique({
       where: { id: orderId },
-      include: { items: true }
+      include: {
+        items: {
+          include: {
+            product: true,
+            variant: true,
+          },
+        },
+        user: true,
+      },
     });
 
     if (!order) {
@@ -32,7 +53,10 @@ export async function POST(req: Request) {
     }
 
     if (order.razorpayOrderId !== razorpay_order_id) {
-      return NextResponse.json({ message: "Order ID mismatch" }, { status: 400 });
+      return NextResponse.json(
+        { message: "Order ID mismatch" },
+        { status: 400 }
+      );
     }
 
     // Verify Razorpay signature
@@ -44,7 +68,10 @@ export async function POST(req: Request) {
 
     if (razorpay_signature !== expectedSign) {
       console.error("Payment signature verification failed");
-      return NextResponse.json({ message: "Payment verification failed" }, { status: 400 });
+      return NextResponse.json(
+        { message: "Payment verification failed" },
+        { status: 400 }
+      );
     }
 
     // Update order status - payment successful
@@ -57,8 +84,8 @@ export async function POST(req: Request) {
           orderStatus: "CONFIRMED",
           razorpayPaymentId: razorpay_payment_id,
           paymentCapturedAt: new Date(),
-          paymentMethod: "razorpay"
-        }
+          paymentMethod: "razorpay",
+        },
       });
 
       // Reduce stock for each item
@@ -86,12 +113,57 @@ export async function POST(req: Request) {
       return updated;
     });
 
-    return NextResponse.json({ 
-      success: true, 
-      orderId: updatedOrder.id,
-      message: "Payment verified and order confirmed"
-    });
+    // Send emails after successful payment
+    try {
+      console.log("📧 Preparing to send emails for order:", updatedOrder.id);
 
+      // Prepare order details for email templates
+      const orderDetails = {
+        orderId: updatedOrder.id,
+        customerName: order.user.name,
+        customerEmail: order.user.email,
+        customerPhone: updatedOrder.phone,
+        items: order.items.map((item) => ({
+          name:
+            item.productName +
+            (item.variantName !== "Default" ? ` (${item.variantName})` : ""),
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        totalAmount: updatedOrder.totalAmount,
+        shippingAddress: updatedOrder.address,
+        paymentMethod: updatedOrder.paymentMethod || "razorpay",
+        orderDate: updatedOrder.createdAt.toLocaleDateString("en-IN", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
+
+      // Send confirmation email to customer
+      await sendOrderConfirmationToUser(orderDetails);
+      console.log(
+        `✅ Order confirmation email sent to customer: ${order.user.email}`
+      );
+
+      // Send notification email to admin
+      const adminEmail = process.env.ADMIN_EMAIL;
+      await sendOrderNotificationToAdmin(adminEmail!, orderDetails);
+      console.log(`✅ Order notification email sent to admin: ${adminEmail}`);
+    } catch (emailError) {
+      console.error("❌ Error sending emails:", emailError);
+      // Don't throw error here as payment processing was successful
+    }
+
+    
+
+    return NextResponse.json({
+      success: true,
+      orderId: updatedOrder.id,
+      message: "Payment verified and order confirmed",
+    });
   } catch (error: any) {
     console.error("Error verifying payment:", error);
     return NextResponse.json(

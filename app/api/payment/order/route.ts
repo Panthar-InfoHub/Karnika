@@ -1,7 +1,7 @@
 import Razorpay from "razorpay";
 import { NextResponse } from "next/server";
 import { prisma } from "@/prisma/db";
-import { getSession } from "@/utils/auth-utils";
+import { getSession } from "@/lib/auth-utils";
 
 export async function POST(req: Request) {
   try {

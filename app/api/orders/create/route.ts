@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/prisma/db";
-import { getSession } from "@/utils/auth-utils";
+import { getSession } from "@/lib/auth-utils";
 
 interface OrderItem {
   productId: string;
@@ -132,7 +132,7 @@ export async function POST(req: Request) {
       data: {
         userId: session.user.id,
         totalAmount: calculatedTotal,
-        address: `${shippingDetails.fullName}\n${session.user.email || ""}\n${shippingDetails.address}`,
+        address: `${shippingDetails.fullName}, \n${shippingDetails.address}`,
         phone: shippingDetails.phone,
         paymentStatus: "PENDING",
         orderStatus: "PENDING",

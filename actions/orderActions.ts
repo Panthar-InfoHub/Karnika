@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/prisma/db";
-import { getSession } from "@/utils/auth-utils";
+import { getSession } from "@/lib/auth-utils";
 import { revalidatePath } from "next/cache";
 
 interface OrderItem {

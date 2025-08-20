@@ -1,8 +1,10 @@
 import { prisma } from "@/prisma/db";
+import { sendOrderConfirmationToUser, sendOrderNotificationToAdmin } from "@/lib/sendMail";
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
+  console.log("Payment verification request received");
   try {
     const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
 
@@ -41,6 +43,7 @@ export async function POST(req: NextRequest) {
 
     // Handle payment.captured event
     if (event === "payment.captured") {
+      // Update order in database
       await prisma.order.updateMany({
         where: { razorpayOrderId: payment.order_id },
         data: {
@@ -52,6 +55,58 @@ export async function POST(req: NextRequest) {
         },
       });
 
+      // Fetch the order details for email
+      const order = await prisma.order.findFirst({
+        where: { razorpayOrderId: payment.order_id },
+        include: {
+          user: true,
+          items: {
+            include: {
+              product: true,
+              variant: true,
+            },
+          },
+        },
+      });
+
+      if (order) {
+        // Prepare order details for email templates
+        const orderDetails = {
+          orderId: order.id,
+          customerName: order.user.name,
+          customerEmail: order.user.email,
+          customerPhone: order.phone,
+          items: order.items.map(item => ({
+            name: item.productName + (item.variantName !== "Default" ? ` (${item.variantName})` : ""),
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          totalAmount: order.totalAmount, 
+          shippingAddress: order.address,
+          paymentMethod: order.paymentMethod || payment.method,
+          orderDate: order.createdAt.toLocaleDateString('en-IN', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+        };
+
+        try {
+          // Send confirmation email to customer
+          await sendOrderConfirmationToUser(orderDetails);
+          console.log(`Order confirmation email sent to customer: ${order.user.email}`);
+
+          // Send notification email to admin
+          const adminEmail = process.env.ADMIN_EMAIL || "shivayadavsy1256@gmail.com";
+          await sendOrderNotificationToAdmin(adminEmail, orderDetails);
+          console.log(`Order notification email sent to admin: ${adminEmail}`);
+        } catch (emailError) {
+          console.error("Error sending emails:", emailError);
+          // Don't throw error here as payment processing was successful
+        }
+      }
     }
 
     // Handle payment.failed event

@@ -6,14 +6,14 @@ import { toast } from "sonner";
 import { useSession } from "@/lib/auth-client";
 import { useCart } from "@/context/CartContext";
 import { Card, CardContent } from "../ui/card";
-import { ShoppingCart, Lock } from "lucide-react";
+import { ShoppingCart, Lock, Loader2 } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
-import { z } from "zod";
+import { set, z } from "zod";
 
 interface OrderItem {
   productId: string;
@@ -47,7 +47,8 @@ export default function CheckoutForm() {
     address: "",
   });
   const [loading, setLoading] = useState(false);
-  
+  const [redirecting, setRedirecting] = useState(false);
+
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -101,7 +102,7 @@ export default function CheckoutForm() {
       const createOrderRes = await fetch("/api/orders/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           orderItems,
           shippingDetails: {
             address: formData.address,
@@ -143,6 +144,7 @@ export default function CheckoutForm() {
         },
         handler: async function (response: any) {
           try {
+            setRedirecting(true);
             const verifyRes = await fetch("/api/payment/verify", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -151,29 +153,28 @@ export default function CheckoutForm() {
                 orderId: orderData.orderId,
               }),
             });
-
+            
             const result = await verifyRes.json();
             if (result.success) {
               toast.success("Payment successful! Order confirmed.");
+              router.replace("/account");
               clearCart();
-              // Use replace and add a small delay to ensure smooth transition
-              setTimeout(() => {
-                router.replace("/account");
-              }, 1500);
+
             } else {
               toast.error(result.message || "Payment verification failed");
             }
           } catch (error: any) {
             toast.error("Payment verification failed. Please contact support.");
-            console.error("Payment verification error:", error);
+          } finally {
+            setRedirecting(false);
           }
         },
         modal: {
-          ondismiss: function() {
-            toast.warning("Payment cancelled. Your order is saved and you can retry payment later.");
+          ondismiss: function () {
+            toast.warning("Payment cancelled. You can retry payment later.");
           }
         },
-        theme: { color: "#f97316" },
+        // theme: { color: "#f97316" },
       };
 
       const rzp = new (window as any).Razorpay(options);
@@ -186,13 +187,22 @@ export default function CheckoutForm() {
     }
   };
 
+  if (redirecting) {
+    return <div className="flex items-center justify-center py-16">
+      <div className="flex items-center space-x-2">
+        <Loader2 className="animate-spin" />
+        <span>Please wait while we verify your payment...</span>
+      </div>
+    </div>;
+  }
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Side - Shipping Information */}
         <div>
           <h2 className="text-xl font-medium mb-6">Shipping Information</h2>
-          
+
           <div className="space-y-4">
             <div>
               <Label htmlFor="fullName" className="text-sm font-medium text-gray-700">
@@ -212,7 +222,7 @@ export default function CheckoutForm() {
                 Phone number *
               </Label>
               <div className="flex mt-1">
-                
+
                 <Input
                   id="phone"
                   type="tel"
@@ -243,7 +253,7 @@ export default function CheckoutForm() {
         {/* Right Side - Order Summary */}
         <div>
           <h2 className="text-xl font-medium mb-6">Review your cart</h2>
-          
+
           <Card className="border border-gray-200">
             <CardContent className="p-6">
               <div className="space-y-4 mb-6">

@@ -1,6 +1,6 @@
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
 import { ThemeProvider } from "@/components/theme-provider";
-import { checkIsAdmin } from "@/utils/auth-utils";
+import { checkIsAdmin } from "@/lib/auth-utils";
 import { redirect, RedirectType } from "next/navigation";
 
 export default async function AdminLayout({

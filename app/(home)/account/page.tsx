@@ -1,6 +1,6 @@
 import AccountLayout from "@/components/account/AccountLayout";
 import { prisma } from "@/prisma/db";
-import { getSession } from "@/utils/auth-utils";
+import { getSession } from "@/lib/auth-utils";
 import { redirect } from "next/navigation";
 
 async function getOrdersData() {

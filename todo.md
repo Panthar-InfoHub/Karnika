@@ -1,6 +1,5 @@
 - pasword change  and create if user logged in using google
 - adress and phone save for user and prefill automatically during checkout
-- send email when order is confirmed - both admin and the user
 - google cloud implementation for images
 - settings page for admin - like banner 
 - product form page refactor - with add and update server action

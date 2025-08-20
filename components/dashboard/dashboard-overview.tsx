@@ -16,9 +16,10 @@ import {
   Pie,
 } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import {  TrendingUp, ShoppingCart, Package, AlertTriangle } from 'lucide-react'
+import { TrendingUp, ShoppingCart, Package, AlertTriangle } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
 
 type TimePeriod = 'today' | '30days' | 'lifetime';
 
@@ -34,25 +35,25 @@ interface DashboardStats {
 
 const COLORS = {
   PENDING: "#f59e0b",
-  CONFIRMED: "#3b82f6", 
+  CONFIRMED: "#3b82f6",
   PACKED: "#8b5cf6",
   SHIPPED: "#06b6d4",
   DELIVERED: "#10b981",
   CANCELLED: "#ef4444"
 }
 
-function StatCard({ 
-  title, 
-  value, 
-  icon: Icon, 
-  trend, 
-  loading = false 
-}: { 
+function StatCard({
+  title,
+  value,
+  icon: Icon,
+  trend,
+  loading = false
+}: {
   title: string
   value: string | number
   icon: any
   trend?: string
-  loading?: boolean 
+  loading?: boolean
 }) {
   if (loading) {
     return (
@@ -92,12 +93,12 @@ function ChartSkeleton({ height = "280px" }: { height?: string }) {
 
 function RevenueChart({ data, loading, period }: { data: any[], loading: boolean, period: TimePeriod }) {
   if (loading) return <ChartSkeleton />
-  
+
   const getChartTitle = () => {
     switch (period) {
       case 'today':
-        return data.length > 0 && data[0].date.includes(':') 
-          ? 'Today\'s Hourly Breakdown' 
+        return data.length > 0 && data[0].date.includes(':')
+          ? 'Today\'s Hourly Breakdown'
           : 'Last 7 Days (No data today)';
       case '30days':
         return 'Last 30 Days Trend';
@@ -107,7 +108,7 @@ function RevenueChart({ data, loading, period }: { data: any[], loading: boolean
         return 'Revenue Trend';
     }
   };
-  
+
   return (
     <div>
       <div className="mb-4">
@@ -117,7 +118,7 @@ function RevenueChart({ data, loading, period }: { data: any[], loading: boolean
           <p className="text-sm text-muted-foreground mt-1">No data available for this period</p>
         )}
       </div>
-      
+
       {data.length > 0 ? (
         <ChartContainer
           className="w-full h-[220px]"
@@ -138,9 +139,9 @@ function RevenueChart({ data, loading, period }: { data: any[], loading: boolean
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis 
-              dataKey="date" 
-              tickLine={false} 
+            <XAxis
+              dataKey="date"
+              tickLine={false}
               axisLine={false}
               fontSize={12}
               interval={period === 'today' ? 2 : 'preserveStart'} // Show every 3rd hour for today
@@ -151,8 +152,8 @@ function RevenueChart({ data, loading, period }: { data: any[], loading: boolean
               tickLine={false}
               axisLine={false}
             />
-            <YAxis yAxisId="right" orientation="right"  tickLine={false} axisLine={false} />
-            <ChartTooltip 
+            <YAxis yAxisId="right" orientation="right" tickLine={false} axisLine={false} />
+            <ChartTooltip
               content={<ChartTooltipContent indicator="line" />}
               labelFormatter={(value) => {
                 if (period === 'today' && value.includes(':')) {
@@ -200,7 +201,7 @@ function RevenueChart({ data, loading, period }: { data: any[], loading: boolean
 
 function OrderStatusChart({ data, loading }: { data: any[], loading: boolean }) {
   if (loading) return <ChartSkeleton height="320px" />
-  
+
   if (data.length === 0) {
     return (
       <div className="w-full flex items-center justify-center border rounded-lg bg-muted/20" style={{ height: '280px' }}>
@@ -212,7 +213,7 @@ function OrderStatusChart({ data, loading }: { data: any[], loading: boolean }) 
       </div>
     );
   }
-  
+
   return (
     <ChartContainer
       className="w-full"
@@ -228,7 +229,7 @@ function OrderStatusChart({ data, loading }: { data: any[], loading: boolean }) 
           outerRadius={70}
           dataKey="count"
           nameKey="status"
-          label={({ status, count, percent }) => 
+          label={({ status, count, percent }) =>
             count > 0 ? `${status}: ${count}` : ''
           }
         >
@@ -236,7 +237,7 @@ function OrderStatusChart({ data, loading }: { data: any[], loading: boolean }) 
             <Cell key={`cell-${index}`} fill={COLORS[entry.status as keyof typeof COLORS] || "#8884d8"} />
           ))}
         </Pie>
-        <ChartTooltip 
+        <ChartTooltip
           content={<ChartTooltipContent />}
           formatter={(value, name) => [value, `${name} Orders`]}
         />
@@ -247,7 +248,7 @@ function OrderStatusChart({ data, loading }: { data: any[], loading: boolean }) 
 
 function TopProductsChart({ data, loading }: { data: any[], loading: boolean }) {
   if (loading) return <ChartSkeleton height="320px" />
-  
+
   if (data.length === 0) {
     return (
       <div className="w-full flex items-center justify-center border rounded-lg bg-muted/20" style={{ height: '280px' }}>
@@ -259,7 +260,7 @@ function TopProductsChart({ data, loading }: { data: any[], loading: boolean }) 
       </div>
     );
   }
-  
+
   return (
     <ChartContainer
       className="w-full"
@@ -284,7 +285,7 @@ function TopProductsChart({ data, loading }: { data: any[], loading: boolean }) 
           tickLine={false}
           tick={{ fontSize: 12 }}
         />
-        <ChartTooltip 
+        <ChartTooltip
           content={<ChartTooltipContent indicator="dot" />}
           formatter={(value, name) => [
             `₹${value.toLocaleString()}`,
@@ -315,12 +316,12 @@ export function DashboardOverview() {
       try {
         setLoading(true)
         setError(null)
-        
+
         const response = await fetch(`/api/dashboard/stats?period=${period}`)
         if (!response.ok) {
           throw new Error('Failed to fetch dashboard data')
         }
-        
+
         const data = await response.json()
         setStats(data)
       } catch (err) {
