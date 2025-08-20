@@ -51,7 +51,7 @@ export default function SignIn() {
               toast.error("Please verify your email to continue");
             } else {
               // console.error(ctx.error);
-              toast.error("Login failed. Please try again.");
+              toast.error(ctx.error.message || "Login failed. Please try again.");
             }
           },
           onSuccess: async () => {
@@ -94,71 +94,71 @@ export default function SignIn() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                }}
-                value={email}
-              />
-            </div>
+              <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="m@example.com"
+                    required
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                    }}
+                    value={email}
+                  />
+                </div>
 
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                <Link
-                  href="#"
-                  className="ml-auto inline-block text-sm underline"
+                <div className="grid gap-2">
+                  <div className="flex items-center">
+                    <Label htmlFor="password">Password</Label>
+                    <Link
+                      href="/forgot-password"
+                      className="ml-auto inline-block text-sm underline"
+                    >
+                      Forgot your password?
+                    </Link>
+                  </div>
+
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="password"
+                    autoComplete="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={loading}
+                  onClick={handleLogin}
                 >
-                  Forgot your password?
-                </Link>
+                  {loading ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <p> Login </p>
+                  )}
+                </Button>
+
+                <div
+                  className={cn(
+                    "w-full gap-2 flex items-center",
+                    "justify-between flex-col"
+                  )}
+                >
+                  <Button
+                    variant="outline"
+                    className={cn("w-full gap-2")}
+                    disabled={loading}
+                  >
+                    Sign in with Google
+                  </Button>
+                </div>
               </div>
-
-              <Input
-                id="password"
-                type="password"
-                placeholder="password"
-                autoComplete="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={loading}
-              onClick={handleLogin}
-            >
-              {loading ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <p> Login </p>
-              )}
-            </Button>
-
-            <div
-              className={cn(
-                "w-full gap-2 flex items-center",
-                "justify-between flex-col"
-              )}
-            >
-              <Button
-                variant="outline"
-                className={cn("w-full gap-2")}
-                disabled={loading}
-              >
-                Sign in with Google
-              </Button>
-            </div>
-          </div>
-        </CardContent>
+            </CardContent>
             <CardFooter>
               <div className="flex justify-center w-full border-t py-4">
                 <p className="text-center text-xs text-neutral-500">

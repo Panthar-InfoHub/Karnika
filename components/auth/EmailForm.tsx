@@ -1,14 +1,14 @@
 "use client"
 import React from 'react'
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from 'lucide-react';
-import { sendVerificationEmail } from '@/lib/auth-client';
+import { forgetPassword, sendVerificationEmail } from '@/lib/auth-client';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-const VerificationForm = () => {
+const EmailForm = ({ type = "email-verification" }: { type?: "forgot-password" | "email-verification" }) => {
 
     const [email, setEmail] = React.useState("");
     const [loading, setLoading] = React.useState(false);
@@ -24,26 +24,36 @@ const VerificationForm = () => {
 
         try {
             setLoading(true);
-            await sendVerificationEmail({
-                email,
-                fetchOptions: {
-                    // onRequest: () => {
-                    //     setIsPending(true);
-                    // },
-                    // onResponse: () => {
-                    //     setIsPending(false);
-                    // },
-                    onError: (ctx) => {
-                        toast.error(ctx.error.message);
+
+            {
+                type === "forgot-password" ? await forgetPassword({
+                    email,
+                    redirectTo: "/reset-password",
+                    fetchOptions: {
+                        onError: (ctx) => {
+                            toast.error(ctx.error.message);
+                        },
+                        onSuccess: () => {
+                            toast.success("Reset Link sent successfully.");
+                            router.push("/forgot-password/success?email=" + encodeURIComponent(email));
+                        },
                     },
-                    onSuccess: () => {
-                        toast.success("Verification email sent successfully.");
-                        router.push("/verify-email/success?email=" + encodeURIComponent(email));
+                }) : await sendVerificationEmail({
+                    email,
+                    fetchOptions: {
+                        onError: (ctx) => {
+                            toast.error(ctx.error.message);
+                        },
+                        onSuccess: () => {
+                            toast.success("Verification email sent successfully.");
+                            router.push("/verify-email/success?email=" + encodeURIComponent(email));
+                        },
                     },
-                },
-            });
+                });
+            }
+
         } catch (error) {
-            toast.error("Failed to send verification email.");
+            toast.error("Failed to send email.");
         } finally {
             setLoading(false);
         }
@@ -75,15 +85,13 @@ const VerificationForm = () => {
                         {loading ? (
                             <Loader2 size={16} className="animate-spin" />
                         ) : (
-                            <p>Send Verification Email</p>
+                            <p>Send {type === "forgot-password" ? "Reset Link" : "Verification Email"} </p>
                         )}
                     </Button>
                 </div>
             </CardContent>
-
-
         </Card>
     )
 }
 
-export default VerificationForm
+export default EmailForm

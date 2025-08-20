@@ -1,5 +1,5 @@
 
-import VerificationForm from "@/components/auth/VerificationForm";
+import VerificationForm from "@/components/auth/EmailForm";
 import { redirect } from "next/navigation";
 
 interface PageProps {

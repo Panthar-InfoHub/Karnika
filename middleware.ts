@@ -6,6 +6,9 @@ const authRoutes = [
   "/register",
   "/verify-email",
   "/verify-email/success",
+  "/forgot-password",
+  "/forgot-password/success",
+  "/reset-password"
 ];
 const ProtectedRoutes = ["/account", "/orders"];
 
