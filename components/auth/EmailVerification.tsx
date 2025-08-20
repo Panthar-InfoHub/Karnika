@@ -30,44 +30,36 @@ export default function EmailVerification({
   showBackToLogin = false,
   onBack
 }: EmailVerificationProps) {
-  const [resendLoading, setResendLoading] = useState(false);
-  const [resendCount, setResendCount] = useState(0);
+  const [loading, setIsLoading] = useState(false);
+
   const router = useRouter();
 
   const handleResendVerification = async () => {
-    if (resendCount >= 3) {
-      toast.error('Maximum resend attempts reached. Please try again later.');
-      return;
-    }
+
 
     if (!email) {
       toast.error('Email address not found. Please refresh and try again.');
       return;
     }
 
-    setResendLoading(true);
+    setIsLoading(true);
 
     try {
       await sendVerificationEmail({
-        email: email,
+        email,
         fetchOptions: {
-          onSuccess: () => {
-            setResendCount(prev => prev + 1);
-            toast.success('Verification email sent successfully!');
+          onRequest: () => {
+            setIsLoading(true);
           },
-          onError: (ctx: any) => {
-            if (ctx.error.message.includes('already verified')) {
-              toast.success('Email already verified! You can now log in.');
-              setTimeout(() => {
-                router.push('/login');
-              }, 2000);
-            } else if (ctx.error.message.includes('rate limit') || ctx.error.message.includes('too many')) {
-              toast.error('Too many verification emails sent. Please try again later.');
-            } else if (ctx.error.message.includes('not found')) {
-              toast.error('Account not found. Please register again.');
-            } else {
-              toast.error(ctx.error.message || 'Failed to resend verification email');
-            }
+          onResponse: () => {
+            setIsLoading(false);
+          },
+          onError: (ctx) => {
+            toast.error(ctx.error.message);
+          },
+          onSuccess: () => {
+            toast.success("Verification email sent successfully.");
+            router.push("/verify-email/success?email=" + encodeURIComponent(email));
           },
         },
       });
@@ -75,7 +67,7 @@ export default function EmailVerification({
       console.error('Resend verification error:', error);
       toast.error('Failed to resend verification email. Please try again.');
     } finally {
-      setResendLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -104,20 +96,15 @@ export default function EmailVerification({
             onClick={handleResendVerification}
             variant="outline"
             className="w-full"
-            disabled={resendLoading || resendCount >= 3}
+            disabled={loading}
           >
-            {resendLoading ? (
+            {loading ? (
               <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
             ) : (
               <Mail className="w-4 h-4 mr-2" />
             )}
-            {resendLoading ? 'Sending...' : 'Resend Verification Email'}
+            {loading ? 'Sending...' : 'Resend Verification Email'}
           </Button>
-          {resendCount > 0 && (
-            <p className="text-xs text-muted-foreground">
-              Emails sent: {resendCount}/3
-            </p>
-          )}
         </div>
       </CardContent>
       <CardFooter>

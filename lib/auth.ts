@@ -14,7 +14,7 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 6,
     requireEmailVerification: true,
-    sendResetPassword: async ({ user, url, token }, request) => {
+    sendResetPassword: async ({ user, url }) => {
       await sendMail(user.email, {
         subject: "Reset your password - Karnika",
         text: `Click the link to reset your password: ${url}`,
@@ -42,20 +42,22 @@ export const auth = betterAuth({
         `,
       });
     },
-    onPasswordReset: async ({ user }, request) => {
+    onPasswordReset: async ({ user }) => {
       console.log(`Password for user ${user.email} has been reset.`);
-      // You can add additional logic here like logging or notifications
     },
   },
   emailVerification: {
     sendOnSignUp: true,
     expiresIn: 60 * 60 * 3,
     autoSignInAfterVerification: true,
-    callbackURL: "/email-verified", // Redirect after verification
-    sendVerificationEmail: async ({ user, url, token }, request) => {
+    callbackURL: "/verify-email", // Redirect after verification
+    sendVerificationEmail: async ({ user, url }) => {
+      const link = new URL(url);
+      link.searchParams.set("callbackURL", "/verify-email");
+
       await sendMail(user.email, {
         subject: "Verify your email address - Karnika",
-        text: `Click the link to verify your email: ${url}`,
+        text: `Click the link to verify your email: ${link}`,
         html: `
           <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
             <h2 style="color: #333; text-align: center;">Verify Your Email Address</h2>
@@ -63,7 +65,7 @@ export const auth = betterAuth({
               Thank you for signing up for Karnika! Please click the button below to verify your email address.
             </p>
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${url}" 
+              <a href="${link}" 
                  style="background-color: #ff6b35; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
                 Verify Email Address
               </a>
@@ -74,7 +76,7 @@ export const auth = betterAuth({
             <p style="color: #666; font-size: 14px;">
               If the button doesn't work, copy and paste this link into your browser:
               <br>
-              <a href="${url}" style="color: #ff6b35;">${url}</a>
+              <a href="${link}" style="color: #ff6b35;">${link}</a>
             </p>
           </div>
         `,

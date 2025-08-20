@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
-const authRoutes = ["/login", "/register"];
+const authRoutes = [
+  "/login",
+  "/register",
+  "/verify-email",
+  "/verify-email/success",
+];
 const ProtectedRoutes = ["/account", "/orders"];
 
 export async function middleware(request: NextRequest) {
@@ -15,26 +20,26 @@ export async function middleware(request: NextRequest) {
   const isOnProtectedRoute = ProtectedRoutes.includes(nextUrl.pathname);
   const isOnAdminRoute = nextUrl.pathname.startsWith("/admin");
 
-  if( (isOnAdminRoute || isOnProtectedRoute) && !isLoggedIn) {
+  if ((isOnAdminRoute || isOnProtectedRoute) && !isLoggedIn) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if( isOnAuthRoute && isLoggedIn){
-    return NextResponse.redirect(new URL("/", request.url));
+  if (isOnAuthRoute && isLoggedIn) {
+    return NextResponse.redirect(new URL("/account", request.url));
   }
 
   return res;
 }
 
 export const config = {
-    matcher: [
-      /*
-       * Match all request paths except for the ones starting with:
-       * - api (API routes)
-       * - _next/static (static files)
-       * - _next/image (image optimization files)
-       * - favicon.ico (favicon file)
-       */
-      '/((?!api|_next/static|_next/image|favicon.ico).*)',
-    ],
-  }
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+  ],
+};
