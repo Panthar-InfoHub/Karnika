@@ -1,7 +1,8 @@
 // check session and give true or false based on admin role
 
-import { auth, Session } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+
 
 // let session :Session|null = null; // Cache for the session to avoid multiple calls
 

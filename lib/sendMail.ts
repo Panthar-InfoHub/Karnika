@@ -1,19 +1,19 @@
 import { orderPlacedAdmin, orderPlacedUser } from "@/templates/Email";
 import nodemailer from "nodemailer";
 
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.ADMIN_EMAIL,
+    pass: process.env.GOOGLE_APP_PASSWORD,
+  },
+});
+
 export const sendMail = async (
   to: string,
   emailContent: { subject: string; text: string; html: string }
 ) => {
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.ADMIN_EMAIL,
-        pass: process.env.GOOGLE_APP_PASSWORD,
-      },
-    });
-
     const mailOptions = {
       from: process.env.ADMIN_EMAIL,
       to,
