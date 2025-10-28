@@ -1,30 +1,30 @@
-import { Suspense } from "react";
+import { getAllCMSPages } from "@/actions/admin/cms.actions";
+import { CMSPagesTable } from "@/components/admin/pages/cms-pages-table";
 
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { requireAdmin } from "@/lib/admin-auth";
+export const metadata = {
+  title: "CMS Pages | Admin",
+  description: "Manage your website content pages",
+};
 
 export default async function AdminPagesPage() {
-  // Protect page - only admins can access
-  // await requireAdmin();
+  const pagesResult = await getAllCMSPages();
+
+  if (!pagesResult.success || !pagesResult.data) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <p className="text-muted-foreground">Failed to load pages</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Pages</h1>
-          <p className="text-muted-foreground mt-1">Manage website content pages</p>
-        </div>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Page
-        </Button>
+      <div>
+        <h1 className="text-3xl font-bold">Pages</h1>
+        <p className="text-muted-foreground mt-2">Manage your website content pages</p>
       </div>
 
-      <Suspense fallback={<LoadingSpinner />}>
-        <h1>Page List (to be implemented)</h1>
-      </Suspense>
+      <CMSPagesTable pages={pagesResult.data} />
     </div>
   );
 }
