@@ -6,15 +6,17 @@ export async function getShippingConfig() {
   const configResult = await getSiteConfig();
 
   if (!configResult.success || !configResult.data) {
-    // Return defaults if config fetch fails
+    // Return null values if config fetch fails - no defaults
     return {
-      shippingCharge: 50,
-      freeShippingMinOrder: 500,
+      shippingCharge: null,
+      freeShippingMinOrder: null,
     };
   }
 
+  // Return actual values from database (can be null)
+  // Null means the feature is not configured, not that we should use a default
   return {
-    shippingCharge: configResult.data.shippingCharge,
-    freeShippingMinOrder: configResult.data.freeShippingMinOrder,
+    shippingCharge: configResult.data.shippingCharge ?? null,
+    freeShippingMinOrder: configResult.data.freeShippingMinOrder ?? null,
   };
 }

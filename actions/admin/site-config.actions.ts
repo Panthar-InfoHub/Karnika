@@ -29,8 +29,8 @@ export async function getSiteConfig() {
 
 // Update site configuration (admin only)
 export async function updateSiteConfig(data: {
-  shippingCharge?: number;
-  freeShippingMinOrder?: number;
+  shippingCharge?: number | null;
+  freeShippingMinOrder?: number | null;
   showAnnouncementBar?: boolean;
   announcementText?: string;
 }) {
@@ -89,7 +89,22 @@ export async function calculateShippingCharge(orderTotal: number) {
     }
 
     const config = configResult.data;
-    const isFreeShipping = orderTotal >= config.freeShippingMinOrder;
+
+    // If shipping charge is not configured, no shipping
+    if (config.shippingCharge === null) {
+      return {
+        success: true,
+        data: {
+          shippingCharge: 0,
+          isFreeShipping: true,
+          freeShippingMinOrder: null,
+        },
+      };
+    }
+
+    // Check if free shipping threshold is met
+    const isFreeShipping =
+      config.freeShippingMinOrder !== null && orderTotal >= config.freeShippingMinOrder;
     const shippingCharge = isFreeShipping ? 0 : config.shippingCharge;
 
     return {
