@@ -1,0 +1,4 @@
+- arrow button are hiding in the carousel 
+- make banner little bigger
+- make the scroll little smoth
+- make checkout page and other pages fast load
