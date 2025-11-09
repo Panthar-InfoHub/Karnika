@@ -10,8 +10,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -309,9 +309,9 @@ model CouponUsage {
 
 model CMSPage {
   id              String   @id @default(cuid())
-  slug            String   @unique
+  slug            String   @unique // Fixed slugs: about, terms-and-conditions, shipping-policy, privacy-policy, return-policy
   title           String
-  content         String
+  content         String   @db.Text // Rich text content
   metaTitle       String?
   metaDescription String?
   isPublished     Boolean  @default(false)
@@ -321,12 +321,24 @@ model CMSPage {
   @@map("cms_page")
 }
 
+model FAQ {
+  id          String   @id @default(cuid())
+  question    String
+  answer      String   @db.Text
+  order       Int      @default(0)
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("faq")
+}
+
 model SiteConfig {
   id                   String   @id @default(cuid())
-  shippingCharge       Float    @default(50)
-  freeShippingMinOrder Float    @default(500)
-  showAnnouncementBar  Boolean  @default(true)
-  announcementText     String   @default("Free shipping on orders above ₹500!")
+  shippingCharge       Float? // Nullable - if null, don't apply shipping
+  freeShippingMinOrder Float? // Nullable - if null, no free shipping threshold
+  showAnnouncementBar  Boolean  @default(false)
+  announcementText     String   @default("")
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
