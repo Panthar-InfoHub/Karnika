@@ -2,13 +2,28 @@ import { prisma } from "@/prisma/db";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { USER_ROLE } from "@/prisma/generated/prisma";
+import { sendMail } from "@/lib/send-mail";
+import { ResetPasswordEmailTemplate } from "@/templates/Email";
+
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-  trustedOrigins: [
-    "http://localhost:3000",
-  ],
+  trustedOrigins: ["http://localhost:3000"],
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: false,
+    sendResetPassword: async ({ user, url }) => {
+      try {
+        const emailContent = ResetPasswordEmailTemplate({ link: new URL(url) });
+        await sendMail(user.email, emailContent);
+        console.log(`✅ Password reset email sent to ${user.email}`);
+      } catch (error) {
+        console.error(`❌ Failed to send password reset email to ${user.email}:`, error);
+        console.log(`\n🔑 PASSWORD RESET URL (copy this link): ${url}\n`);
+      }
+    },
+  },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -32,10 +47,16 @@ export const auth = betterAuth({
         before: async (user) => {
           const ADMIN_EMAILS = process.env.ADMIN_EMAILS?.split(",") || [];
 
+          // Mark all users as verified by default
+          const userData = {
+            ...user,
+            emailVerified: true,
+          };
+
           if (ADMIN_EMAILS.includes(user.email)) {
-            return { data: { ...user, role: USER_ROLE.ADMIN } };
+            return { data: { ...userData, role: USER_ROLE.ADMIN } };
           }
-          return { data: user };
+          return { data: userData };
         },
       },
     },

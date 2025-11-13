@@ -269,35 +269,6 @@ Karnika Admin System`,
   };
 };
 
-export const VerificationEmailTemplate = ({ link }: { link: URL }) => {
-  return {
-    subject: "Verify your email address - Karnika",
-    text: `Click the link to verify your email: ${link}`,
-    html: `
-          <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
-            <h2 style="color: #333; text-align: center;">Verify Your Email Address</h2>
-            <p style="color: #666; line-height: 1.6;">
-              Thank you for signing up for Karnika! Please click the button below to verify your email address.
-            </p>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${link}" 
-                 style="background-color: #ff6b35; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
-                Verify Email Address
-              </a>
-            </div>
-            <p style="color: #666; font-size: 14px;">
-              This link will expire in 3 hours. If you didn't request this, please ignore this email.
-            </p>
-            <p style="color: #666; font-size: 14px;">
-              If the button doesn't work, copy and paste this link into your browser:
-              <br>
-              <a href="${link}" style="color: #ff6b35;">${link}</a>
-            </p>
-          </div>
-          `,
-  };
-};
-
 export const ResetPasswordEmailTemplate = ({ link }: { link: URL }) => {
   return {
     subject: "Reset your password - Karnika",
