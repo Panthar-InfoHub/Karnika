@@ -50,7 +50,6 @@ export default function WishlistPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold flex items-center gap-3">
-              <Heart className="h-6 w-6 text-red-500 fill-red-500" />
               My Wishlist
             </h2>
             <p className="text-muted-foreground mt-1">
