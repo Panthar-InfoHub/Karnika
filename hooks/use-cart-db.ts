@@ -1,6 +1,8 @@
 "use client";
 
 import { create } from "zustand";
+import { useEffect } from "react";
+import { useSession } from "@/lib/auth-client";
 
 import {
   getCart,
@@ -41,9 +43,12 @@ interface CartStore {
   removeItem: (itemId: string) => Promise<void>;
   updateQuantity: (itemId: string, quantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
+  clearState: () => void;
   getSubtotal: () => number;
   getShipping: () => number;
   getTotal: () => number;
+  getTotalItems: () => number;
+  isInCart: (productId: string, weight: string) => boolean;
 }
 
 export const useCart = create<CartStore>((set, get) => ({
@@ -227,4 +232,32 @@ export const useCart = create<CartStore>((set, get) => ({
   getTotal: () => {
     return get().getSubtotal() + get().getShipping();
   },
+
+  getTotalItems: () => {
+    return get().items.reduce((total, item) => total + item.quantity, 0);
+  },
+
+  isInCart: (productId: string, weight: string) => {
+    return get().items.some((item) => item.productId === productId && item.weight === weight);
+  },
+
+  clearState: () => {
+    set({ items: [], isInitialized: false, isLoading: false });
+  },
 }));
+
+// Hook to auto-sync cart with authentication state
+export function useCartSync() {
+  const { data: session } = useSession();
+  const { fetchCart, clearState, isInitialized } = useCart();
+
+  useEffect(() => {
+    if (session?.user?.id && !isInitialized) {
+      // User is logged in, fetch cart
+      fetchCart();
+    } else if (!session?.user?.id && isInitialized) {
+      // User logged out, clear cart
+      clearState();
+    }
+  }, [session?.user?.id, isInitialized, fetchCart, clearState]);
+}

@@ -212,25 +212,3 @@ export async function clearCart() {
     return { success: false, error: "Failed to clear cart" };
   }
 }
-
-// No longer needed - guest carts are not created
-export async function mergeGuestCart(userId: string) {
-  // Since we don't create guest carts anymore, just ensure user has a cart
-  try {
-    const existingCart = await prisma.cart.findUnique({
-      where: { userId },
-    });
-
-    if (!existingCart) {
-      await prisma.cart.create({
-        data: { userId },
-      });
-    }
-
-    revalidatePath("/");
-    return { success: true };
-  } catch (error) {
-    console.error("Error creating user cart:", error);
-    return { success: false, error: "Failed to create cart" };
-  }
-}

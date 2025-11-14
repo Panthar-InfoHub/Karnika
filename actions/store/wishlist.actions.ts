@@ -45,70 +45,6 @@ export async function getWishlist() {
   }
 }
 
-// Add item to wishlist
-export async function addToWishlist(productId: string) {
-  try {
-    const session = await auth.api.getSession({ headers: await headers() });
-
-    if (!session?.user?.id) {
-      return { success: false, error: "Please login to add items to wishlist" };
-    }
-
-    // Check if already in wishlist
-    const existing = await prisma.wishlistItem.findUnique({
-      where: {
-        userId_productId: {
-          userId: session.user.id,
-          productId,
-        },
-      },
-    });
-
-    if (existing) {
-      return { success: false, error: "Item already in wishlist" };
-    }
-
-    await prisma.wishlistItem.create({
-      data: {
-        userId: session.user.id,
-        productId,
-      },
-    });
-
-    revalidatePath("/");
-    return { success: true, message: "Item added to wishlist" };
-  } catch (error) {
-    console.error("Error adding to wishlist:", error);
-    return { success: false, error: "Failed to add item to wishlist" };
-  }
-}
-
-// Remove item from wishlist
-export async function removeFromWishlist(productId: string) {
-  try {
-    const session = await auth.api.getSession({ headers: await headers() });
-
-    if (!session?.user?.id) {
-      return { success: false, error: "Please login to manage wishlist" };
-    }
-
-    await prisma.wishlistItem.delete({
-      where: {
-        userId_productId: {
-          userId: session.user.id,
-          productId,
-        },
-      },
-    });
-
-    revalidatePath("/");
-    return { success: true, message: "Item removed from wishlist" };
-  } catch (error) {
-    console.error("Error removing from wishlist:", error);
-    return { success: false, error: "Failed to remove item from wishlist" };
-  }
-}
-
 // Toggle wishlist item (add if not exists, remove if exists)
 export async function toggleWishlist(productId: string) {
   try {
@@ -151,31 +87,6 @@ export async function toggleWishlist(productId: string) {
   } catch (error) {
     console.error("Error toggling wishlist:", error);
     return { success: false, error: "Failed to update wishlist" };
-  }
-}
-
-// Check if product is in wishlist
-export async function isInWishlist(productId: string) {
-  try {
-    const session = await auth.api.getSession({ headers: await headers() });
-
-    if (!session?.user?.id) {
-      return { success: true, data: { isInWishlist: false } };
-    }
-
-    const item = await prisma.wishlistItem.findUnique({
-      where: {
-        userId_productId: {
-          userId: session.user.id,
-          productId,
-        },
-      },
-    });
-
-    return { success: true, data: { isInWishlist: !!item } };
-  } catch (error) {
-    console.error("Error checking wishlist:", error);
-    return { success: false, error: "Failed to check wishlist" };
   }
 }
 

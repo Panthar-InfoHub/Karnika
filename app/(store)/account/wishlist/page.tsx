@@ -12,18 +12,14 @@ import { useRouter } from "next/navigation";
 export default function WishlistPage() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
-  const { items, fetchWishlist, clearWishlistItems, isLoading, isInitialized } = useWishlist();
+  const { items, clearWishlistItems, isLoading } = useWishlist();
   const [isClearing, setIsClearing] = useState(false);
 
   useEffect(() => {
-    if (!isPending) {
-      if (!session?.user) {
-        router.push("/login?redirect=/account/wishlist");
-      } else if (!isInitialized) {
-        fetchWishlist();
-      }
+    if (!isPending && !session?.user) {
+      router.push("/login?redirect=/account/wishlist");
     }
-  }, [session, isPending, isInitialized, fetchWishlist, router]);
+  }, [session, isPending, router]);
 
   const handleClearWishlist = async () => {
     if (!confirm("Are you sure you want to clear your entire wishlist?")) {

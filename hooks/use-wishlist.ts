@@ -1,14 +1,9 @@
 "use client";
 
 import { create } from "zustand";
-import {
-  getWishlist,
-  addToWishlist,
-  removeFromWishlist,
-  toggleWishlist,
-  isInWishlist,
-  clearWishlist,
-} from "@/actions/store/wishlist.actions";
+import { useEffect } from "react";
+import { useSession } from "@/lib/auth-client";
+import { getWishlist, toggleWishlist, clearWishlist } from "@/actions/store/wishlist.actions";
 
 interface WishlistItem {
   id: string;
@@ -25,16 +20,12 @@ interface WishlistStore {
 
   // Actions
   fetchWishlist: () => Promise<void>;
-  addItem: (productId: string) => Promise<{ success: boolean; message?: string; error?: string }>;
-  removeItem: (
-    productId: string
-  ) => Promise<{ success: boolean; message?: string; error?: string }>;
   toggleItem: (
     productId: string
   ) => Promise<{ success: boolean; message?: string; error?: string; isInWishlist?: boolean }>;
-  checkItem: (productId: string) => Promise<boolean>;
   clearWishlistItems: () => Promise<{ success: boolean; message?: string; error?: string }>;
-  isInWishlistLocal: (productId: string) => boolean;
+  isInWishlist: (productId: string) => boolean;
+  clearState: () => void;
 }
 
 export const useWishlist = create<WishlistStore>((set, get) => ({
@@ -62,36 +53,13 @@ export const useWishlist = create<WishlistStore>((set, get) => ({
     }
   },
 
-  addItem: async (productId: string) => {
-    const result = await addToWishlist(productId);
-    if (result.success) {
-      // Refresh wishlist
-      await get().fetchWishlist();
-    }
-    return result;
-  },
-
-  removeItem: async (productId: string) => {
-    const result = await removeFromWishlist(productId);
-    if (result.success) {
-      // Refresh wishlist
-      await get().fetchWishlist();
-    }
-    return result;
-  },
-
   toggleItem: async (productId: string) => {
     const result = await toggleWishlist(productId);
     if (result.success) {
-      // Refresh wishlist
+      // Refresh wishlist to sync state
       await get().fetchWishlist();
     }
     return result;
-  },
-
-  checkItem: async (productId: string) => {
-    const result = await isInWishlist(productId);
-    return result.success && result.data ? result.data.isInWishlist : false;
   },
 
   clearWishlistItems: async () => {
@@ -102,7 +70,27 @@ export const useWishlist = create<WishlistStore>((set, get) => ({
     return result;
   },
 
-  isInWishlistLocal: (productId: string) => {
+  isInWishlist: (productId: string) => {
     return get().wishlistProductIds.has(productId);
   },
+
+  clearState: () => {
+    set({ items: [], wishlistProductIds: new Set(), isInitialized: false, isLoading: false });
+  },
 }));
+
+// Hook to auto-sync wishlist with authentication state
+export function useWishlistSync() {
+  const { data: session } = useSession();
+  const { fetchWishlist, clearState, isInitialized } = useWishlist();
+
+  useEffect(() => {
+    if (session?.user?.id && !isInitialized) {
+      // User is logged in, fetch wishlist
+      fetchWishlist();
+    } else if (!session?.user?.id && isInitialized) {
+      // User logged out, clear wishlist
+      clearState();
+    }
+  }, [session?.user?.id, isInitialized, fetchWishlist, clearState]);
+}

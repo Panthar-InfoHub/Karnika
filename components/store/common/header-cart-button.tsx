@@ -8,19 +8,15 @@ import { useCart } from "@/hooks/use-cart-db";
 
 export function HeaderCartButton({ isMobile = false }: { isMobile?: boolean }) {
   const [cartOpen, setCartOpen] = useState(false);
-  const { items } = useCart();
-  const cartCount = items.length;
+  const { getTotalItems } = useCart();
+  const cartCount = getTotalItems();
 
   return (
     <>
       <Button
         variant="ghost"
         size="icon"
-        className={
-          isMobile
-            ? "lg:hidden relative "
-            : "relative "
-        }
+        className={isMobile ? "lg:hidden relative " : "relative "}
         onClick={() => setCartOpen(true)}
       >
         <ShoppingCart className="h-5 w-5" />
