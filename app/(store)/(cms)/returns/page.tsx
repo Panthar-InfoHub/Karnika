@@ -1,46 +1,45 @@
-import React from "react";
+import { getCMSPageBySlug } from '@/actions/admin/cms.actions';
+import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 
-const page = () => {
+export async function generateMetadata(): Promise<Metadata> {
+  const result = await getCMSPageBySlug('return-policy');
+
+  if (!result.success || !result.data) {
+    return {
+      title: 'Return Policy',
+    };
+  }
+
+  const page = result.data;
+
+  return {
+    title: page.metaTitle || page.title,
+    description: page.metaDescription || undefined,
+  };
+}
+
+export default async function ReturnsPage() {
+  const result = await getCMSPageBySlug('return-policy');
+
+  if (!result.success || !result.data) {
+    notFound();
+  }
+
+  const page = result.data;
+
   return (
-    <div>
-      <section>
-        <h2>Return, Refund, and Cancellation Policy</h2>
+    <div className='container max-w-4xl py-12'>
+      <div className='space-y-8'>
+        <div>
+          <h1 className='text-4xl font-bold tracking-tight'>{page.title}</h1>
+        </div>
 
-        <ul>
-          <li>We don&#39;t accept any returns once the order is delivered.</li>
-          <li>
-            Refunds at karnika are subject to the following conditions:
-            <ul>
-              <li>
-                If the product is unavailable and the payment was already made.
-              </li>
-              <li>
-                If the product was damaged on delivery. Customers may be asked
-                to share a picture of the damaged product.
-              </li>
-              <li>
-                If the product was lost in transit, and the delivery remained
-                incomplete.
-              </li>
-            </ul>
-          </li>
-          <li>
-            karnika reserves the right to cancel any order for any reason. We
-            may also require additional information to process your order. You
-            will be notified in case your order, or a portion of your order, is
-            cancelled. If your order is cancelled after your credit&#47;debit
-            card has been charged, you will receive the refund in 5&#45;7
-            working days.
-          </li>
-        </ul>
-
-        <p>
-          In case you would like to contact Karnika, reach out at <a href="mailto:karnika@gmail.com">karnika@gmail.com</a> or
-          call 1234567890.
-        </p>
-      </section>
+        <div 
+          className='prose prose-lg max-w-none dark:prose-invert'
+          dangerouslySetInnerHTML={{ __html: page.content }}
+        />
+      </div>
     </div>
   );
-};
-
-export default page;
+}

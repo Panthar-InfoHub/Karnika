@@ -1,23 +1,45 @@
-import React from "react";
+import { getCMSPageBySlug } from '@/actions/admin/cms.actions';
+import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 
-const page = () => {
+export async function generateMetadata(): Promise<Metadata> {
+  const result = await getCMSPageBySlug('about');
+
+  if (!result.success || !result.data) {
+    return {
+      title: 'About Us',
+    };
+  }
+
+  const page = result.data;
+
+  return {
+    title: page.metaTitle || page.title,
+    description: page.metaDescription || undefined,
+  };
+}
+
+export default async function AboutPage() {
+  const result = await getCMSPageBySlug('about');
+
+  if (!result.success || !result.data) {
+    notFound();
+  }
+
+  const page = result.data;
+
   return (
-    <div>
-      <section>
-        <h1>About Us &#45; Karnika</h1>
-        <p>
-          Welcome to <strong>Karnika</strong>, 
-        </p>
-        <ul>
-          <li>
-            <strong>On&#45;Time Delivery:</strong> Happiness delivered within
-            7&#45;8 working days.
-          </li>
-        </ul>
+    <div className='container max-w-4xl py-12'>
+      <div className='space-y-8'>
+        <div>
+          <h1 className='text-4xl font-bold tracking-tight'>{page.title}</h1>
+        </div>
 
-      </section>
+        <div 
+          className='prose prose-lg max-w-none dark:prose-invert'
+          dangerouslySetInnerHTML={{ __html: page.content }}
+        />
+      </div>
     </div>
   );
-};
-
-export default page;
+}
