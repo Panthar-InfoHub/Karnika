@@ -23,10 +23,10 @@ import { updateSiteConfig } from "@/actions/admin/site-config.actions";
 import { Loader2 } from "lucide-react";
 
 const siteConfigSchema = z.object({
-  shippingCharge: z.number().min(0, "Shipping charge must be 0 or greater"),
-  freeShippingMinOrder: z.number().min(0, "Minimum order value must be 0 or greater"),
+  shippingCharge: z.number().min(0, "Shipping charge must be 0 or greater").nullable(),
+  freeShippingMinOrder: z.number().min(0, "Minimum order value must be 0 or greater").nullable(),
   showAnnouncementBar: z.boolean(),
-  announcementText: z.string().min(1, "Announcement text is required").max(200, "Text is too long"),
+  announcementText: z.string().max(200, "Text is too long"),
 });
 
 type SiteConfigFormData = z.infer<typeof siteConfigSchema>;
@@ -34,8 +34,8 @@ type SiteConfigFormData = z.infer<typeof siteConfigSchema>;
 interface SiteConfigFormProps {
   config: {
     id: string;
-    shippingCharge: number;
-    freeShippingMinOrder: number;
+    shippingCharge: number | null;
+    freeShippingMinOrder: number | null;
     showAnnouncementBar: boolean;
     announcementText: string;
   };
@@ -90,12 +90,18 @@ export function SiteConfigForm({ config }: SiteConfigFormProps) {
                   <Input
                     type="number"
                     step="0.01"
-                    placeholder="50"
+                    placeholder="Leave empty to disable shipping charges"
                     {...field}
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    value={field.value ?? ""}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      field.onChange(value === "" ? null : parseFloat(value));
+                    }}
                   />
                 </FormControl>
-                <FormDescription>Default shipping charge for orders below minimum</FormDescription>
+                <FormDescription>
+                  Shipping charge per order. Leave empty to disable shipping charges.
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -111,12 +117,18 @@ export function SiteConfigForm({ config }: SiteConfigFormProps) {
                   <Input
                     type="number"
                     step="0.01"
-                    placeholder="500"
+                    placeholder="Leave empty to disable free shipping"
                     {...field}
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    value={field.value ?? ""}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      field.onChange(value === "" ? null : parseFloat(value));
+                    }}
                   />
                 </FormControl>
-                <FormDescription>Orders above this amount get free shipping</FormDescription>
+                <FormDescription>
+                  Orders above this amount get free shipping. Leave empty to disable free shipping.
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
