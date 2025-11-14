@@ -11,6 +11,8 @@ import {
   Settings,
   Store,
   Tag,
+  FileText,
+  HelpCircle,
 } from "lucide-react";
 import { siteConfig } from "@/site.config";
 import {
@@ -34,6 +36,8 @@ const navigation = [
   { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
   { name: "Coupons", href: "/admin/coupons", icon: Tag },
   { name: "Customers", href: "/admin/users", icon: Users },
+  { name: "Pages", href: "/admin/pages", icon: FileText },
+  { name: "FAQ", href: "/admin/faq", icon: HelpCircle },
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
