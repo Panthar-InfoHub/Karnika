@@ -71,7 +71,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     <React.Fragment key={crumb.href}>
                       {index === breadcrumbs.length - 1 ? (
                         <BreadcrumbItem>
-                          <BreadcrumbPage className="truncate max-w-[160px]">
+                          <BreadcrumbPage className="truncate max-w-40">
                             {crumb.label}
                           </BreadcrumbPage>
                         </BreadcrumbItem>

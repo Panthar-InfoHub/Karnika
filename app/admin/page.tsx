@@ -6,7 +6,6 @@ import {
   getTopProducts,
 } from "@/actions/admin/dashboard.actions";
 import { DashboardClient } from "@/components/admin/dashboard/dashboard-client";
-import { requireAdmin } from "@/lib/admin-auth";
 import { AdminDashboardSkeleton } from "@/components/ui/loading-skeleton";
 
 async function DashboardDataWrapper() {

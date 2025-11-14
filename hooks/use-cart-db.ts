@@ -26,8 +26,8 @@ export interface CartItem {
 }
 
 interface ShippingConfig {
-  shippingCharge: number;
-  freeShippingMinOrder: number;
+  shippingCharge: number | null;
+  freeShippingMinOrder: number | null;
 }
 
 interface CartStore {
@@ -58,11 +58,11 @@ export const useCart = create<CartStore>((set, get) => ({
       set({ shippingConfig: config });
     } catch (error) {
       console.error("Error fetching shipping config:", error);
-      // Set default values if fetch fails
+      // Set null values if fetch fails - no defaults
       set({
         shippingConfig: {
-          shippingCharge: 50,
-          freeShippingMinOrder: 9999,
+          shippingCharge: null,
+          freeShippingMinOrder: null,
         },
       });
     }
@@ -210,11 +210,18 @@ export const useCart = create<CartStore>((set, get) => ({
     const subtotal = get().getSubtotal();
     const config = get().shippingConfig;
 
-    // Use default values if config is not loaded yet
-    const freeShippingThreshold = config?.freeShippingMinOrder || 500;
-    const shippingCost = config?.shippingCharge || 50;
+    // If shipping charge is not configured (null), no shipping charge
+    if (!config || config.shippingCharge === null) {
+      return 0;
+    }
 
-    return subtotal >= freeShippingThreshold ? 0 : shippingCost;
+    // If free shipping threshold is configured and met, no shipping charge
+    if (config.freeShippingMinOrder !== null && subtotal >= config.freeShippingMinOrder) {
+      return 0;
+    }
+
+    // Otherwise, apply the shipping charge
+    return config.shippingCharge;
   },
 
   getTotal: () => {

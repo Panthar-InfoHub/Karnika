@@ -2,8 +2,6 @@ import type React from "react";
 import { Poppins } from "next/font/google";
 import { ReactLenis } from "@/components/shared/lenis";
 import { Toaster } from "@/components/ui/sonner";
-import { CartProvider } from "@/components/providers/cart-provider";
-import { WishlistSync } from "@/components/providers/wishlist-sync";
 import { ScrollToTop } from "@/components/shared/scroll-to-top";
 import { siteConfig } from "@/site.config";
 import "lenis/dist/lenis.css";
@@ -24,11 +22,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={` ${poppins.className} antialiased`} suppressHydrationWarning>
       <ReactLenis root>
         <body className="min-h-screen bg-background text-foreground" suppressHydrationWarning>
-          <CartProvider>
-            <WishlistSync />
-            <ScrollToTop />
-            {children}
-          </CartProvider>
+          <ScrollToTop />
+          {children}
           <Toaster />
         </body>
       </ReactLenis>
