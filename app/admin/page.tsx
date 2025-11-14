@@ -8,6 +8,9 @@ import {
 import { DashboardClient } from "@/components/admin/dashboard/dashboard-client";
 import { AdminDashboardSkeleton } from "@/components/ui/loading-skeleton";
 
+// Revalidate dashboard data every 5 minutes
+export const revalidate = 300;
+
 async function DashboardDataWrapper() {
   // Fetch all data server-side
   const [statsResult, revenueResult, categoryResult, topProductsResult] = await Promise.all([

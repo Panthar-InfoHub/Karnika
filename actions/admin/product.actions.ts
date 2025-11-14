@@ -149,7 +149,11 @@ export async function createProduct(data: ProductFormData) {
       },
     });
 
+    // ✅ Clear cache when product is created
     revalidatePath("/admin/products");
+    revalidatePath("/products"); // Revalidate store products page
+    revalidatePath("/", "layout"); // Revalidate home page (featured products)
+
     return { success: true, data: product };
   } catch (error) {
     console.error("Error creating product:", error);
@@ -203,7 +207,12 @@ export async function updateProduct(id: string, data: ProductFormData) {
       },
     });
 
+    // ✅ Clear cache when product is updated
     revalidatePath("/admin/products");
+    revalidatePath("/products"); // Revalidate store products page
+    revalidatePath(`/products/${product.slug}`); // Revalidate product detail page
+    revalidatePath("/", "layout"); // Revalidate home page (featured products)
+
     return { success: true, data: product };
   } catch (error) {
     console.error("Error updating product:", error);
@@ -223,7 +232,11 @@ export async function deleteProduct(id: string) {
       where: { id },
     });
 
+    // ✅ Clear cache when product is deleted
     revalidatePath("/admin/products");
+    revalidatePath("/products"); // Revalidate store products page
+    revalidatePath("/", "layout"); // Revalidate home page
+
     return { success: true, message: "Product deleted successfully" };
   } catch (error) {
     console.error("Error deleting product:", error);

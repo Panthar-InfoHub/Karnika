@@ -1,17 +1,54 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { DashboardStats } from "@/components/admin/dashboard/dashboard-stats";
-import { RevenueAreaChart } from "@/components/admin/dashboard/revenue-area-chart-new";
-import { CategoryPerformance } from "@/components/admin/dashboard/category-performance";
-import { OrdersComparison } from "@/components/admin/dashboard/orders-comparison";
-import { TopProductsList } from "@/components/admin/dashboard/top-products-list";
-import { RecentOrdersList } from "@/components/admin/dashboard/recent-orders-list";
-import { OrderStatusChart } from "@/components/admin/dashboard/order-status-chart";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   TimeFilter,
   type TimeFilter as TimeFilterType,
 } from "@/components/admin/dashboard/time-filter";
+
+// Lazy load chart components (heavy with recharts)
+const RevenueAreaChart = dynamic(
+  () =>
+    import("@/components/admin/dashboard/revenue-area-chart-new").then((mod) => ({
+      default: mod.RevenueAreaChart,
+    })),
+  { loading: () => <Skeleton className="h-[350px] w-full" /> }
+);
+
+const CategoryPerformance = dynamic(
+  () =>
+    import("@/components/admin/dashboard/category-performance").then((mod) => ({
+      default: mod.CategoryPerformance,
+    })),
+  { loading: () => <Skeleton className="h-[350px] w-full" /> }
+);
+
+const OrdersComparison = dynamic(
+  () =>
+    import("@/components/admin/dashboard/orders-comparison").then((mod) => ({
+      default: mod.OrdersComparison,
+    })),
+  { loading: () => <Skeleton className="h-[350px] w-full" /> }
+);
+
+const OrderStatusChart = dynamic(
+  () =>
+    import("@/components/admin/dashboard/order-status-chart").then((mod) => ({
+      default: mod.OrderStatusChart,
+    })),
+  { loading: () => <Skeleton className="h-[350px] w-full" /> }
+);
+
+const RecentOrdersList = dynamic(
+  () =>
+    import("@/components/admin/dashboard/recent-orders-list").then((mod) => ({
+      default: mod.RecentOrdersList,
+    })),
+  { loading: () => <Skeleton className="h-[400px] w-full" /> }
+);
 
 interface DashboardClientProps {
   initialStats: any;

@@ -17,10 +17,25 @@ export async function getWishlist() {
 
     const wishlistItems = await prisma.wishlistItem.findMany({
       where: { userId: session.user.id },
-      include: {
+      select: {
+        id: true,
+        productId: true,
+        createdAt: true,
         product: {
-          include: {
-            category: true,
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            images: true,
+            variants: true,
+            description: true,
+            category: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
           },
         },
       },

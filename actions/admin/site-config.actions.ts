@@ -2,6 +2,7 @@
 
 import { prisma } from "@/prisma/db";
 import { requireAdmin } from "@/lib/admin-auth";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 // Get site configuration (or create default if doesn't exist)
 export async function getSiteConfig() {
@@ -64,6 +65,10 @@ export async function updateSiteConfig(data: {
         },
       });
     }
+
+    // ✅ Clear cache when site config is updated
+    revalidatePath("/", "layout"); // Revalidate all pages
+    revalidatePath("/checkout"); // Revalidate checkout (shipping)
 
     return { success: true, data: config };
   } catch (error) {

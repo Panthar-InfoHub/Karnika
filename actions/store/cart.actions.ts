@@ -53,11 +53,23 @@ export async function getCart() {
       return { success: true, data: { items: [] } };
     }
 
-    // Fetch product details for all cart items
+    // Fetch product details for all cart items (optimized - only select needed fields)
     const productIds = cart.items.map((item) => item.productId);
     const products = await prisma.product.findMany({
       where: { id: { in: productIds } },
-      include: { category: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        images: true,
+        variants: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
 
     // Transform products with signed URLs
